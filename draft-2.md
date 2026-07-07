@@ -108,7 +108,7 @@ The first number after `/` is **always the interval**; the optional second is th
 
 ### 5.2 Cadence — anchor-based repetition
 
-`<date>/<n><unit>[/<n><unit>]` — a component that **starts with a date literal**: from this anchor, repeat every *period*, covering *duration* each time (default: 1 period-unit). Period/duration units: `Y M W D H m`.
+`<date>/<n><unit>[/<n><unit>]` — a component that **starts with a date literal**: from this anchor, repeat every *period*, covering *duration* each time (default: **1 of the period's unit** — `…/14M` covers 1 month per recurrence, `…/10D` covers 1 day). Period/duration units: `Y M W D H m`.
 
 | Expression | Covered |
 | --- | --- |
@@ -121,8 +121,8 @@ Validity:
 
 - The anchor is part of the literal — an anchorless cadence cannot be written.
 - The anchor must be a **real calendar date** — `20230229/1Y` is rejected outright.
-- Month/year periods use **constrain** overflow arithmetic (§9.2): `20240131/1M` covers Jan 31, Feb 28/29, Mar 31, …
-- duration < period (compared conservatively: max length of duration ≤ min length of period; same-unit comparisons are exact).
+- Month/year periods use **constrain** overflow arithmetic (§9.2): `20240131/3M/1D` covers Jan 31, Apr 30 (constrained), Jul 31, Oct 31.
+- duration < period (compared conservatively: max length of duration ≤ min length of period; same-unit comparisons are exact). Consequence: a period of exactly 1 unit (`/1M`, `/1D`) requires an **explicit smaller-unit duration** (`/1M/1D`) — the default would equal the period, and continuous coverage is a bound's job, not a cadence's.
 - At most **one cadence per expression**; union more via `|`.
 
 Cadences intersect with other components like anything else:
@@ -213,8 +213,8 @@ Selectors match against the fields of *real instants*, so a calendar position th
 
 When a month- or year-period cadence occurrence lands on a nonexistent date, it is **constrained** (clamped) to the last valid day:
 
-- `20240131/1M` → Jan 31, Feb 29, Mar 31, Apr 30, … (2025: Feb 28)
-- `20240229/1Y` → Feb 29 in leap years, Feb 28 otherwise
+- `20240131/1M/1D` → Jan 31, Feb 29, Mar 31, Apr 30, … (2025: Feb 28)
+- `20240229/1Y/1D` → Feb 29 in leap years, Feb 28 otherwise
 
 This matches Temporal's `constrain` arithmetic. Interop note: plain RFC 5545 RRULE *skips* such occurrences; the equivalent behavior requires RFC 7529 `SKIP=BACKWARD`, which `toRRule()` must emit for affected cadences.
 
@@ -283,6 +283,6 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 
 ## 13. Conformance
 
-An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (`vectors.json`, to be authored with this draft: `{ expression, instant, tz, expected }` coverage cases plus `{ expression, error }` rejection cases). The vectors — not the prose — are the contract.
+An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases and warning cases. The vectors — not the prose — are the contract.
 
-The suite must include the calendar traps of §§9.1–9.3: `D29 M2` against 2023, 2024, and **2100**; `D-1 M2`; `D366`; `W53`; `E7#5`; `20240131/1M` across February; `20240229/1Y`; midnight-wrap + weekday intersection; and DST-transition instants in a non-UTC zone (gap, overlap, and a cadence window spanning the transition).
+The suite includes the calendar traps of §§9.1–9.3: `D29 M2` against 2023, 2024, 2000, and **2100**; `D-1` across leap February; `W53`; `E7#5`; `20240131/3M/1D` and `20240229/1Y/1D` constrain cases; midnight-wrap + weekday intersection; and DST-transition instants in `Europe/Berlin` (gap and overlap).

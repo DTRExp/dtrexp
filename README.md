@@ -116,7 +116,7 @@ Honesty cuts both ways. DTRE does **not** try to be:
 | --- | --- |
 | [draft-2.md](draft-2.md) | current specification (grammar, semantics, examples) |
 | [draft-2-repetition.md](draft-2-repetition.md) | the stride/cadence split, explained |
-| `vectors.json` | conformance test vectors *(planned, ships with draft 2.1)* |
+| [vectors.json](vectors.json) | conformance test vectors — the contract |
 
 A reference implementation ([`dtre-js`](https://github.com/DTRExp/dtre-js) — TypeScript, ESM, zero dependencies) is developed against the vectors.
 
