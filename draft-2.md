@@ -257,14 +257,31 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 | 1st and 3rd Friday of every month | `E5#1 \| E5#3` |
 | First 10 ISO weeks of each year, 2015–2029 | `W1-10 Y2015-2029` |
 
-## 11. Open questions (for draft 2.1)
+## 11. Changes from draft 1 / DTRExp
+
+| Was | Now | Why |
+| --- | --- | --- |
+| `:` (exclusive) *and* `-` ranges | `-` inclusive only; `T` half-open | one operator, one rule; off-by-ones die |
+| `!` in 5 positions | `!` only after the designator | one negation, defined set semantics |
+| `F` / `L` / `+` ordinals | negative values + `E…#n` | one mechanism; `-1SU`-style familiarity |
+| `/duration/interval/repetition` tail | stride `/i[/d]` + anchored cadence | split by evaluation model (§5); anchor required by grammar |
+| repetition indices `/*3;5` | removed | bound the cadence with dates instead |
+| `<ᐧ <=ᐧ >ᐧ >=ᐧ =` operators | date-literal bounds (§6) | same power, less grammar |
+| `Y*3` (anchorless stride) | syntax error | epoch problem solved by construction |
+| week-of-month `W` | removed; `W` = ISO week-of-year, Y-scoped | ill-defined; notes-issues already conceded |
+| `T` always UTC | tz is an evaluation parameter | business hours are local; DST |
+| "a DTRE should not be parsed" | "cannot generally be enumerated; evaluated by coverage" | it is parsed; it isn't expanded |
+| 4/6-digit date literals (`2015`, `201703`) | 8-digit minimum | removes `Y2015` vs `2015` ambiguity |
+| millisecond selector `S` | removed (`T` literals keep `.sss` precision) | no real use case |
+
+## 12. Open questions (for draft 2.1)
 
 1. **`W` + `M` co-occurrence** — currently legal by intersection (`W10 M3` = the part of ISO week 10 that lies in March). Confirm or forbid.
 2. **Ordinal `#` on units other than `E`** — e.g. `D15#…` makes no sense, but `W#-1 M*` ("last full week of each month") was a draft-1 wish. Deferred; would reintroduce week-of-month semantics.
 3. **Cadence duration in a different unit than the period** (`/10D/36H`) — currently allowed with a conservative max≤min length check; may restrict to same-unit if the check proves confusing.
 4. **`describe()` locale model** — deferred to the library spec.
 
-## 12. Conformance
+## 13. Conformance
 
 An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases and warning cases. The vectors — not the prose — are the contract.
 
