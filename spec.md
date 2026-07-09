@@ -287,7 +287,8 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 | Weekends from 2018-03-01 to 2019-04-25 | `E6:7 20180301:20190425` |
 | 18:00–20:00 on 2018-01-20 | `T1800:2000 20180120` |
 | Every Monday 10–11 until 2018-01-20 18:00 | `T1000:1100 E1 *:20180120T1800` |
-| Every 4th hour, first 20 minutes (Einstein's nap) | `m0:19 H0/4` |
+| Every Friday the 13th | `D13 E5` |
+| Every 4th hour, first 20 minutes (da Vinci's nap — per the legend) | `m0:19 H0/4` |
 | Jan/Apr/Jul/Oct, every year | `M1/3` |
 | Every 3rd year, 2020 through 2040 | `Y2020:2040/3` |
 | Every 14 months from March 2018 | `20180301/14M` |

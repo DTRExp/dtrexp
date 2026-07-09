@@ -6,8 +6,10 @@
 T0900:1800 E1:5                 Mon–Fri, 09:00–18:00
 E7#-1 M4                        last Sunday of April, every year
 20200106/10D                    every 10 days from 2020-01-06
+D13 E5                          every Friday the 13th
 D-7:* Y*                        last 7 days of every year
 M!7                             every month except July
+m0:19 H0/4                      da Vinci's nap — 20 min every 4 hours (per the legend)
 ```
 
 A DTRExp denotes a — possibly infinite — set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
@@ -43,6 +45,7 @@ No single existing format combines all of these; each row breaks at least one in
 | **First-class negation** | `M!7`, `E!6:7` | cron, ISO 8601, opening_hours (only "off" overrides); RRULE (only enumerated `EXDATE`s) |
 | **Anchored cadences** — patterns that drift across calendar boundaries | `20200106/10D` (every 10 days), `20180301/14M` (every 14 months) | cron (famously impossible); opening_hours; ISO 8601-1 |
 | **Calendar ordinals** | `E7#-1 M4` (last Sunday of April) | cron (only Quartz's `L`/`#` extensions); ISO 8601 repeating intervals |
+| **Day-of-month ∩ weekday** | `D13 E5` (every Friday the 13th) | cron — its oldest gotcha: DOM + DOW is **OR**, not AND |
 | **Infinite recursion + absolute bounds in one literal** | `E1 M3 20180101:*` | ISO 8601 (`R` counts, doesn't select); cron (no bounds) |
 | **One compact literal** — no multi-property envelope | the whole examples column | RRULE/iCalendar, JSCalendar (property bags), later.js (JSON/builder) |
 
