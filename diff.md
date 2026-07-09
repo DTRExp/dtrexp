@@ -16,9 +16,22 @@ Locked 2026-07-09 during implementation review. Breaking against draft 2, which 
 | month/year cadence durations checked only by the reference parser | codified: `/nM`, `/nY` durations require month/year periods; rejection vector + `H`/`m`-period coverage vectors added | the vectors are the contract, not the parser |
 | §9.3 silent on cadence-anchor disambiguation | explicit: an anchor at a repeated local time is the **earlier** occurrence; in a gap it resolves **forward** (Temporal `compatible`) | the reference implementation resolved it by the sign of the zone's offset — Berlin got later, New York earlier; mutation testing flushed it out |
 
+### Review fixes folded into 2.1 (independent model review, 2026-07-09)
+
+| Was | Now | Why |
+| --- | --- | --- |
+| §3 "start exceeds end wraps" vs §9.1 "resolved start > end covers nothing" — unreconciled | wrap is decided **syntactically, on literal positive endpoints only**; negative/`*` endpoints resolve per instance and never wrap; statically-always-empty inverted ranges (`M-2:2`, `D-1:5`) now warn | the two sections contradicted each other and no vector pinned the reading |
+| §9 step 3: `unitsBetween mod period < duration` for all cadences | occurrence windows `[constrain(anchor + k·period), +duration)`; the `mod` reduction holds only for exact units (`D`/`W`/`H`/`m`) | the formula contradicted the spec's own §9.2 constrain vectors (`20240131/1M/1D` covers Apr 30) |
+| EBNF could not derive `M*`/`Y*`; ordinals derivable inside lists | `selector = designator , ( "*" \| ordinal \| valuelist \| … )`; `item = value \| range` | the grammar undergenerated the spec's own §10 examples |
+| `Y-1` and `M1,*` accepted, silently useless | both rejected (`Y` has no edge to count from; a list containing `*` *is* `*`) | typo-shaped inputs should fail loudly |
+| `T`'s permitted forms unstated | §4: values, ranges, lists only — no `*` / `!` / stride / ordinal; rejection vectors added | grammar generated forms the evaluator rejects |
+| §5.2 duration check ("max ≤ min length") ambiguous | exact fixed unit lengths specified (M = 28/31 d, Y = 365/366 d); `20240101/2M/58D` rejection vectored | prose and implementation disagreed; "min length of 2 months" is 59 d, the check uses 2×28 |
+| `W`⇒week-year effect on `M`/`Q` unstated; tokenization unstated; bare-literal-with-seconds span undefined | §2: only `Y` tests the week-year; §8: greedy longest-match, any-width separators; §6: day/minute/second span | independent implementers could not answer deterministically |
+| `W53 Y2021` accepted, silent | statically-decidable W53-in-short-years warns | §9.1 SHOULD-flag, now honored; vectored |
+
 Considered and refused: **out-of-domain overflow** (`M14` = February, `D40 M3` = April 9). It would break the existence rule (`D29 M2` = leap day only), silently change `M5 Q2` (May → August), and stop catching typos — fatal for the access-control use case. Wrap ranges + date-literal bounds cover both cross-boundary cases.
 
-## Changes from draft 1 / DTRExp
+## Changes from draft 1 / DTRExp (as of draft 2 — ranges have since moved to `:`, see above)
 
 | Was | Now | Why |
 | --- | --- | --- |

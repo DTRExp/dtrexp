@@ -12,7 +12,7 @@ M!7                             every month except July
 
 A DTRExp denotes a — possibly infinite — set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
 
-**Status: Draft 2 (RFC).** See [draft-2.md](draft-2.md) for the full specification and [draft-2-repetition.md](draft-2-repetition.md) for the repetition-model rationale. (Draft 1 and the DTRExp generation are superseded and archived outside this repo.)
+**Status: Draft 2.1 (RFC).** See [draft-2.md](draft-2.md) for the full specification and [draft-2-repetition.md](draft-2-repetition.md) for the repetition-model rationale. (Draft 1 and the DTRExp generation are superseded and archived outside this repo.)
 
 ---
 
@@ -103,9 +103,9 @@ Honesty cuts both ways. DTRExp does **not** try to be:
 - **A natural-language parser.** `E7#2 M5` is written by people who read a one-page spec, not by parsing "second Sunday of May."
 - **Timezone-clever.** Expressions are tz-agnostic by design; the zone is an evaluation parameter (default UTC). This is a feature — "09:00–18:00" means local business hours wherever you evaluate it — but it means a single expression can't mix zones.
 
-## Design principles (draft 2)
+## Design principles (draft 2.1)
 
-1. **One way to say it.** One range operator (inclusive `-`; half-open only for clock time), one negation position, one ordinal mechanism, one stride form.
+1. **One way to say it.** One range operator (inclusive `:`; half-open only for clock time), one negation position, one ordinal mechanism, one stride form.
 2. **Ambiguity is a syntax error.** An anchorless stride (`Y*/3` — "every 3rd year from *when?*") doesn't get a default; it doesn't parse.
 3. **Two kinds of repetition, two constructs.** Calendar-locked patterns are strides on selectors; boundary-crossing patterns are date-anchored cadences. They evaluate differently, so they read differently.
 4. **The vectors are the contract.** If prose and `vectors.json` ever disagree, the vectors win and the prose gets fixed.
