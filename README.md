@@ -1,4 +1,4 @@
-# DTRE
+# DTRExp
 
 **Date-Time Range & Recursion Expression** — a compact string expression for describing *when*, evaluated by *coverage*.
 
@@ -10,7 +10,7 @@ D-7-* Y*                        last 7 days of every year
 M!7                             every month except July
 ```
 
-A DTRE denotes a — possibly infinite — set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
+A DTRExp denotes a — possibly infinite — set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
 
 **Status: Draft 2 (RFC).** See [draft-2.md](draft-2.md) for the full specification and [draft-2-repetition.md](draft-2-repetition.md) for the repetition-model rationale. (Draft 1 and the DTRExp generation are superseded and archived outside this repo.)
 
@@ -30,9 +30,9 @@ Two properties make this hard for existing formats:
 1. **The set is infinite.** "Every Monday, forever" cannot be stored as date objects. It must stay an expression, and the expression must be *checkable* without expansion.
 2. **The check is on the hot path.** An access-control decision runs on every request. Whatever answers "are we currently inside the window?" must be cheap — ideally a handful of integer comparisons, not an iteration over generated occurrences.
 
-DTRE is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant, or a config file — with **O(1) coverage evaluation** (one calendar-field extraction, then per-component integer tests; see draft-2 §9).
+DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant, or a config file — with **O(1) coverage evaluation** (one calendar-field extraction, then per-component integer tests; see draft-2 §9).
 
-## What can DTRE express that others can't?
+## What can DTRExp express that others can't?
 
 No single existing format combines all of these; each row breaks at least one incumbent:
 
@@ -56,15 +56,15 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Fails at:** everything that isn't a trigger. A cron line matches *instants* (minute granularity) — there are no durations, so "09:00–18:00" needs external logic. There are no bounds ("until 2027") in classic cron. And the famous one: **"every 10 days" is impossible**, because `*/10` in the day field resets every month (1, 11, 21, 31, then 1 again — the phase snaps back). Negation doesn't exist. Standard cron can't even say "last day of the month."
 
-*Use cron when:* you're scheduling job execution and the pattern is calendar-locked. That's its home turf; DTRE is not a job scheduler.
+*Use cron when:* you're scheduling job execution and the pattern is calendar-locked. That's its home turf; DTRExp is not a job scheduler.
 
 ### ISO 8601 (durations, intervals, repeating intervals) and ISO 8601-2:2019
 
-**Good at:** interchange of *concrete* times. `2018-03-01/P1M` is unambiguous and universally parseable. Repeating intervals (`R5/2018-03-01/P14M`) express linear anchored cadences — DTRE's cadence component (§5.2) is deliberately isomorphic to them, so that subset round-trips.
+**Good at:** interchange of *concrete* times. `2018-03-01/P1M` is unambiguous and universally parseable. Repeating intervals (`R5/2018-03-01/P14M`) express linear anchored cadences — DTRExp's cadence component (§5.2) is deliberately isomorphic to them, so that subset round-trips.
 
 **Fails at:** selection. ISO 8601-1 has no way to say "last Sunday of April," "weekdays," "except July," or to combine rules — `R` only counts repetitions of one interval. ISO 8601-2:2019 (the extension) does add rule-based recurrences (an RRULE-alike) plus seasons and approximate dates — but it inherits RRULE's model and verbosity, and its real-world adoption is close to zero: you will not find a parser for it in your stack.
 
-*Use ISO 8601 when:* exchanging concrete timestamps and simple repeating intervals across systems. DTRE uses its date syntax (`YYYYMMDD`) precisely for this familiarity.
+*Use ISO 8601 when:* exchanging concrete timestamps and simple repeating intervals across systems. DTRExp uses its date syntax (`YYYYMMDD`) precisely for this familiarity.
 
 ### RFC 5545 iCalendar RRULE (and rrule.js)
 
@@ -72,7 +72,7 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Fails at:** being a coverage expression. An RRULE describes the recurrence of an event's **start instants**; the covered *interval* comes from the surrounding `DTSTART`/`DTEND` component — the rule alone doesn't denote a set of spans. Answering "does this instant fall inside an occurrence?" requires **iterating occurrences** to find the neighborhood — fine for rendering a calendar month, wrong for a per-request permission check. Exceptions are enumerated dates (`EXDATE`), not rules (`EXRULE` was deprecated by RFC 5545 itself) — "every month except July, forever" has no finite representation. It's a multi-property text envelope, not a literal you drop into a column. And the JavaScript flagship, [rrule.js](https://github.com/jkbrzt/rrule), sits at ~1.7M weekly downloads with no release in over a year.
 
-*Use RRULE when:* interoperating with calendar systems. DTRE specifies `toRRule()` for its losslessly-mappable subset for exactly this reason.
+*Use RRULE when:* interoperating with calendar systems. DTRExp specifies `toRRule()` for its losslessly-mappable subset for exactly this reason.
 
 ### RFC 8984 JSCalendar
 
@@ -86,17 +86,17 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Fails at:** general-purpose use. The vocabulary is shop-hours-shaped: no quarters, no day-of-year, no anchored cadences (biweekly exists via `week …/2`, but "every 10 days" or "every 14 months" do not). Year-level algebra is weak. The grammar grew organically for a decade and it shows — even its own corpus only parses at 99.3%, and writing a *correct* complex value by hand is notoriously error-prone. Semantics are defined by the evaluator, not by a conformance suite.
 
-*Use opening_hours when:* you're working with OSM data, or your domain literally is opening hours. It's the strongest evidence that DTRE's category — compact coverage expressions — is real and wanted.
+*Use opening_hours when:* you're working with OSM data, or your domain literally is opening hours. It's the strongest evidence that DTRExp's category — compact coverage expressions — is real and wanted.
 
 ### Schedule libraries (later.js, rSchedule, node-schedule)
 
-**Good at:** in-process scheduling APIs. rSchedule's date-library-agnostic core is good engineering (DTRE's reference implementation borrows the idea).
+**Good at:** in-process scheduling APIs. rSchedule's date-library-agnostic core is good engineering (DTRExp's reference implementation borrows the idea).
 
 **Fails at:** being a format. These are libraries, not specifications — their schedule definitions (JSON blobs, builder chains) are not portable literals, have no conformance story, and several are semi-abandoned. Storing a later.js JSON blob in your database couples your data to one unmaintained package's semantics forever.
 
-## Where DTRE deliberately does less
+## Where DTRExp deliberately does less
 
-Honesty cuts both ways. DTRE does **not** try to be:
+Honesty cuts both ways. DTRExp does **not** try to be:
 
 - **A job scheduler.** No jitter, no missed-run policy, no execution semantics. Pair it with a scheduler if you need triggers.
 - **A calendar-event interchange format.** No attendees, no event metadata, no per-occurrence overrides. That's iCalendar/JSCalendar's job; use `toRRule()` at the boundary.
@@ -118,7 +118,7 @@ Honesty cuts both ways. DTRE does **not** try to be:
 | [draft-2-repetition.md](draft-2-repetition.md) | the stride/cadence split, explained |
 | [vectors.json](vectors.json) | conformance test vectors — the contract |
 
-A reference implementation ([`dtre-js`](https://github.com/DTRExp/dtre-js) — TypeScript, ESM, zero dependencies) is developed against the vectors.
+A reference implementation ([`dtrexp-js`](https://github.com/DTRExp/dtrexp-js) — TypeScript, ESM, zero dependencies) is developed against the vectors.
 
 ## Feedback
 

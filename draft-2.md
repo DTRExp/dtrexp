@@ -1,8 +1,8 @@
-# DTRE — Date-Time Range & Recursion Expression
+# DTRExp — Date-Time Range & Recursion Expression
 
 **Draft 2** · Status: RFC · 2026-07-07
 
-A DTRE is a compact string expression denoting a — possibly infinite — set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
+A DTRExp is a compact string expression denoting a — possibly infinite — set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
 
 ```
 T0900-1800 E1-5          business hours
@@ -14,11 +14,11 @@ E7#-1 M4                 last Sunday of April, every year
 
 ## 1. Model
 
-A DTRE **expression** is one or more **components** whose denoted interval sets are **intersected**. The `|` operator unions whole expressions.
+A DTRExp **expression** is one or more **components** whose denoted interval sets are **intersected**. The `|` operator unions whole expressions.
 
 ```
 expression  =  component ∩ component ∩ …
-dtre        =  expression ∪ expression ∪ …        (via |)
+dtrexp      =  expression ∪ expression ∪ …        (via |)
 ```
 
 - Components may appear in any order; each designator may appear **at most once** per expression. Canonical (recommended) writing order is smallest unit first: `T… E… D… W… M… Q… Y… <bounds>`.
@@ -160,7 +160,7 @@ T0900-1800 E1-5 | T1000-1400 E6    weekday hours, plus short Saturdays
 ## 8. Grammar (EBNF)
 
 ```ebnf
-dtre        = expression , { "|" , expression } ;
+dtrexp      = expression , { "|" , expression } ;
 expression  = component , { [ " " ] , component } ;
 component   = selector | cadence | bounds ;
 
@@ -195,7 +195,7 @@ Every component denotes a set of half-open instant intervals; the expression den
 4. Bounds test `t` against the absolute window.
 5. `covers(t)` ⇔ every component passes; a `|`-union covers ⇔ any branch covers.
 
-Cost: `covers` is O(#components) integer comparisons after one field extraction — no date object iteration. This is the property that makes DTRE suitable for hot paths (e.g. per-request permission checks).
+Cost: `covers` is O(#components) integer comparisons after one field extraction — no date object iteration. This is the property that makes DTRExp suitable for hot paths (e.g. per-request permission checks).
 
 Derived operations: `intersect(a, b)` — the covered intervals clipped to a finite window (always a finite list); `next(after)` — first covered interval after an instant (candidate-stepping search, coarsest selector first).
 
@@ -232,7 +232,7 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 
 ## 10. Examples
 
-| Definition | DTRE |
+| Definition | DTRExp |
 | --- | --- |
 | Business hours (Mon–Fri 9–18) | `T0900-1800 E1-5` |
 | …with lunch break excluded | `T0900-1200,1300-1800 E1-5` |
@@ -270,7 +270,7 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 | `Y*3` (anchorless stride) | syntax error | epoch problem solved by construction |
 | week-of-month `W` | removed; `W` = ISO week-of-year, Y-scoped | ill-defined; notes-issues already conceded |
 | `T` always UTC | tz is an evaluation parameter | business hours are local; DST |
-| "a DTRE should not be parsed" | "cannot generally be enumerated; evaluated by coverage" | it is parsed; it isn't expanded |
+| "a DTRExp should not be parsed" | "cannot generally be enumerated; evaluated by coverage" | it is parsed; it isn't expanded |
 | 4/6-digit date literals (`2015`, `201703`) | 8-digit minimum | removes `Y2015` vs `2015` ambiguity |
 | millisecond selector `S` | removed (`T` literals keep `.sss` precision) | no real use case |
 

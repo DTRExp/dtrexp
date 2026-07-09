@@ -1,4 +1,4 @@
-# Draft 2 — Repetition, cleanly
+# DTRExp — Draft 2 — Repetition, cleanly
 
 _Replaces the old `/duration/interval/repetition` tail. One question decides everything._
 
@@ -49,7 +49,7 @@ Rules:
 
 ## Composing them
 
-Components still just intersect, like everything else in DTRE:
+Components still just intersect, like everything else in DTRExp:
 
 | Expression | Meaning |
 | --- | --- |
