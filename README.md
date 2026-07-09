@@ -12,7 +12,7 @@ M!7                             every month except July
 
 A DTRExp denotes a — possibly infinite — set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
 
-**Status: Draft 2.1 (RFC).** See [draft-2.md](draft-2.md) for the full specification and [draft-2-repetition.md](draft-2-repetition.md) for the repetition-model rationale. (Draft 1 and the DTRExp generation are superseded and archived outside this repo.)
+**Status: Draft 2.1 (RFC).** See [spec.md](spec.md) for the full specification and [repetition.md](repetition.md) for the repetition-model rationale. (Draft 1 and the DTRExp generation are superseded and archived outside this repo.)
 
 ---
 
@@ -30,7 +30,7 @@ Two properties make this hard for existing formats:
 1. **The set is infinite.** "Every Monday, forever" cannot be stored as date objects. It must stay an expression, and the expression must be *checkable* without expansion.
 2. **The check is on the hot path.** An access-control decision runs on every request. Whatever answers "are we currently inside the window?" must be cheap — ideally a handful of integer comparisons, not an iteration over generated occurrences.
 
-DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant, or a config file — with **O(1) coverage evaluation** (one calendar-field extraction, then per-component integer tests; see draft-2 §9).
+DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant, or a config file — with **O(1) coverage evaluation** (one calendar-field extraction, then per-component integer tests; see spec.md §9).
 
 ## What can DTRExp express that others can't?
 
@@ -114,12 +114,18 @@ Honesty cuts both ways. DTRExp does **not** try to be:
 
 | File | What |
 | --- | --- |
-| [draft-2.md](draft-2.md) | current specification (grammar, semantics, examples) |
-| [draft-2-repetition.md](draft-2-repetition.md) | the stride/cadence split, explained |
+| [spec.md](spec.md) | current specification (grammar, semantics, examples) |
+| [repetition.md](repetition.md) | the stride/cadence split, explained |
 | [vectors.json](vectors.json) | conformance test vectors — the contract |
 
 A reference implementation ([`dtrexp-js`](https://github.com/DTRExp/dtrexp-js) — TypeScript, ESM, zero dependencies) is developed against the vectors.
 
 ## Feedback
 
-This is a request for comments. Open an issue for anything ambiguous, missing, or over-engineered — ambiguities found now are grammar fixes; found later, they're breaking changes.
+This is a request for comments. Open an issue for anything ambiguous, missing, or over-engineered — ambiguities found now are grammar fixes; found later, they're breaking changes. Suggestions come in as issues rather than pull requests — see [CONTRIBUTING.md](CONTRIBUTING.md) for how that works and why.
+
+## License
+
+The specification text is licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). The grammar, the examples, and `vectors.json` are additionally available under [MIT](LICENSE.md), so they can be used in source code without an attribution notice. See [LICENSE.md](LICENSE.md) for the exact split. The name "DTRExp" identifies the canonical specification maintained here and is not covered by either license.
+
+Copyright © 2026 [Onur Yıldırım](https://github.com/onury).
