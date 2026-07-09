@@ -112,6 +112,7 @@ Honesty cuts both ways. DTRExp does **not** try to be:
 2. **Ambiguity is a syntax error.** An anchorless stride (`Y*/3` — "every 3rd year from *when?*") doesn't get a default; it doesn't parse.
 3. **Two kinds of repetition, two constructs.** Calendar-locked patterns are strides on selectors; boundary-crossing patterns are date-anchored cadences. They evaluate differently, so they read differently.
 4. **The vectors are the contract.** If prose and `vectors.json` ever disagree, the vectors win and the prose gets fixed.
+5. **DST correctness is emergent, not special-cased.** Coverage is defined on instants, and calendar fields are extracted from the instant in the evaluation zone — so spring-forward gaps cover nothing and fall-back repeats cover both passes, with no DST rules in the model. (Independent clean-room implementations discover this property rather than code it.)
 
 ## Repository layout
 

@@ -1,5 +1,15 @@
 # Changes
 
+## Changes from draft 2.2 (draft 2.3)
+
+Locked 2026-07-09, from the second clean-room implementation's (dtrexp-go) one substantive finding: no vector exercised a cadence on a DST transition, and the three implementations had quietly built **three different models** there. §9.3 now decides it.
+
+| Was | Now | Why |
+| --- | --- | --- |
+| §9.3 internally torn: "occurrence windows align to the local clock" (b3) vs. an instant-resolving anchor rule (b4) that only means anything in absolute time | **calendar-period (`D`/`W`/`M`/`Y`) occurrence windows are local wall-clock intervals** — membership on `t`'s local fields; the anchor is a naive local date-time, never resolved to an instant. Fall-back: both passes covered (25-hour "day"); gap: nothing (23) | extends the `T`-selector's emergent DST model to cadences — one time model, not two; matches the reference and the clean-room py reading; correct for the business-hours use case |
+| anchor disambiguation (earlier/forward) stated for all cadence anchors | scoped to where a literal **must** become one instant: **`H`/`m`-period anchors and bounds literals** | under local wall-clock windows the rule was dead prose for calendar periods — and two of three implementations silently violated it where it was live |
+| — | new vectors: cadence across the Berlin spring-forward gap and fall-back overlap (calendar-period), and the `H`-period anchor in the overlap (earlier occurrence pins the absolute grid) | the corner had zero vectors; dtrexp-py and dtrexp-go both passed the full 2.2 suite while diverging from the spec (later-anchor grids) and from each other (window model) |
+
 ## Changes from draft 2.1 (draft 2.2)
 
 Locked 2026-07-09, from the findings of a **clean-room second implementation** (dtrexp-py, built from prose + vectors alone under an ambiguity-journal protocol). Its journal surfaced 28 underdetermined readings; 4 were live divergences — the reference and the clean-room implementation both passed the full vector suite while disagreeing on all four. Every fix below is vectored.

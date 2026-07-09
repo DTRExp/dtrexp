@@ -1,6 +1,6 @@
 # DTRExp — Date-Time Range & Recursion Expression
 
-**Draft 2.2** · Status: RFC · 2026-07-09 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
+**Draft 2.3** · Status: RFC · 2026-07-09 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
 
 A DTRExp (read: "**DTR expression**") is a compact string expression denoting a — possibly infinite — set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
 
@@ -23,7 +23,7 @@ dtrexp      =  expression ∪ expression ∪ …        (via |)
 
 - Components may appear in any order; each designator may appear **at most once** per expression. Canonical (recommended) writing order is smallest unit first: `T… E… D… W… M… Q… Y… <bounds>`.
 - Whitespace between components is optional but recommended.
-- Expressions are **time-zone agnostic**. The time zone is a parameter of *evaluation*, never part of the expression. (Default: UTC.)
+- Expressions are **time-zone agnostic**. The time zone is a parameter of *evaluation* — an IANA time-zone identifier (`"Europe/Berlin"`) — never part of the expression. **Default: `UTC`**, under which no DST behavior exists at all; the local-time semantics of §9.3 apply only when the caller asks for a zone that has them.
 - All ranges over **discrete calendar units** (days, months, …) are **inclusive** on both ends: `D1:15` is exactly the first 15 days. Only the continuous time-of-day component `T` uses half-open ranges: `T0900:1200` covers 09:00:00.000 up to but not including 12:00.
 
 ## 2. Designators
@@ -225,11 +225,11 @@ Tokens match **greedily** (longest match): `20180120T1800` is always one date-wi
 
 ## 9. Evaluation semantics
 
-Every component denotes a set of half-open instant intervals; the expression denotes their intersection; `|` unions expressions. Formally, for an instant `t` evaluated in time zone `z`:
+Every component denotes a set of half-open instant intervals; the expression denotes their intersection; `|` unions expressions. Formally, for an instant `t` evaluated in time zone `z` (an IANA identifier; default `UTC` — §1):
 
 1. Compute the calendar fields of `t` in `z` **once**: year, ISO week-year+week, quarter, month, day-of-month/quarter/year, weekday, weekday-ordinal-in-scope, time-of-day, hour, minute, second.
 2. Each selector tests its field against its normalized span set (inclusive surface ranges become half-open integer spans at parse time; negative values resolve against the *actual* parent instance — `D-1` in Feb 2024 is 29). Strides test `(value − start) mod interval < duration` within the range.
-3. A cadence covers `t` iff `t` lies inside one of its **occurrence windows**. Occurrence `k` (k ≥ 0) starts at `startₖ = constrain(anchor + k·period)` (§9.2) and ends at `constrain(startₖ + duration)` — the end is measured **from the constrained start**, not from the ideal `anchor + k·period + duration` (for `20240131/3M/1M`, occurrence 1 runs Apr 30 → May 30, not May 31). For the exact units (`D`/`W`/`H`/`m`) this reduces to `unitsBetween(anchor, t) mod period < duration`; for month/year periods the window start **must** be computed by constrained anchor arithmetic — the reduction is wrong there (`20240131/1M/1D` covers Apr 30, which no `mod` on `monthsBetween` yields). `k` is still locatable in O(1) via `floor(unitsBetween(anchor, t) / period)` ± 1.
+3. A cadence covers `t` iff `t` lies inside one of its **occurrence windows**. Occurrence `k` (k ≥ 0) starts at `startₖ = constrain(anchor + k·period)` (§9.2) and ends at `constrain(startₖ + duration)` — the end is measured **from the constrained start**, not from the ideal `anchor + k·period + duration` (for `20240131/3M/1M`, occurrence 1 runs Apr 30 → May 30, not May 31). For `D`/`W`/`M`/`Y` periods this arithmetic is naive local-calendar and the window is a **local wall-clock interval** — membership compares `t`'s local fields against the naive window; the anchor is never resolved to an instant (§9.3). For `H`/`m` periods the anchor resolves to a single instant (§9.3) and windows are absolute elapsed time. For the exact units (`D`/`W`/`H`/`m`) this reduces to `unitsBetween(anchor, t) mod period < duration`; for month/year periods the window start **must** be computed by constrained anchor arithmetic — the reduction is wrong there (`20240131/1M/1D` covers Apr 30, which no `mod` on `monthsBetween` yields). `k` is still locatable in O(1) via `floor(unitsBetween(anchor, t) / period)` ± 1.
 4. Bounds test `t` against the absolute window.
 5. `covers(t)` ⇔ every component passes; a `|`-union covers ⇔ any branch covers.
 
@@ -262,8 +262,8 @@ Evaluation in a non-UTC zone follows directly from instant-based coverage:
 
 - **Nonexistent local times** (spring-forward gap): no instant ever carries those fields, so `T0230:0300` covers nothing on that day — the existence rule again.
 - **Repeated local times** (fall-back): both instants carry matching fields; **both are covered**. Local-time coverage can therefore total 23 or 25 hours on transition days — this is correct for the "local business hours" use case.
-- Cadences with `D`/`W`/`M`/`Y` periods use **calendar arithmetic in the evaluation zone** (Temporal semantics): occurrence windows align to the local clock, so a covered "day" on a transition date is 23 or 25 absolute hours. `H`/`m` periods are absolute elapsed time.
-- A cadence **anchor** that resolves to a repeated local wall-clock time is the **earlier** occurrence; one that falls in a gap resolves **forward** past it — Temporal's `compatible` disambiguation. The rule must not depend on the zone or the sign of its offset.
+- Cadences with `D`/`W`/`M`/`Y` periods use **naive local-calendar arithmetic** in the evaluation zone: occurrence windows are **local wall-clock intervals**, and membership is decided on `t`'s local fields — the anchor is a naive local date-time, never resolved to an instant. The two rules above then apply unchanged: a repeated local time inside the window is covered **both** times (a covered "day" on a fall-back date is 25 absolute hours), and gap times are covered by nothing (23 hours). `H`/`m` periods are **absolute elapsed time** measured from a resolved anchor instant.
+- Exactly **one** construct requires a date literal to become a single instant: the anchor of an **`H`/`m`-period cadence**, whose absolute grid needs one phase point. There, a repeated local wall-clock time resolves to the **earlier** occurrence, and one that falls in a gap resolves **forward** past it: Temporal's `compatible` disambiguation. The rule must not depend on the zone or the sign of its offset. Everything else — calendar-period cadence windows (previous rule) and bounds spans (§6) — is a local wall-clock interval and never resolves: a bounds minute-span whose local minute repeats on a fall-back day covers **both** passes.
 
 ### 9.4 Leap seconds
 
@@ -308,4 +308,4 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 
 An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases and warning cases. The vectors — not the prose — are the contract.
 
-The suite includes the calendar traps of §§9.1–9.3: `D29 M2` against 2023, 2024, 2000, and **2100**; `D-1` across leap February; `W53`; `E7#5`; `20240131/3M/1D` and `20240229/1Y/1D` constrain cases; midnight-wrap + weekday intersection; and DST-transition instants in `Europe/Berlin` (gap and overlap).
+The suite includes the calendar traps of §§9.1–9.3: `D29 M2` against 2023, 2024, 2000, and **2100**; `D-1` across leap February; `W53`; `E7#5`; `20240131/3M/1D` and `20240229/1Y/1D` constrain cases; midnight-wrap + weekday intersection; and DST-transition instants in `Europe/Berlin` (gap and overlap) — including cadence occurrence windows across both transitions and the `H`-period anchor in the fall-back overlap.
