@@ -3,10 +3,10 @@
 **Date-Time Range & Recursion Expression** — a compact string expression for describing *when*, evaluated by *coverage*.
 
 ```
-T0900-1800 E1-5                 Mon–Fri, 09:00–18:00
+T0900:1800 E1:5                 Mon–Fri, 09:00–18:00
 E7#-1 M4                        last Sunday of April, every year
 20200106/10D                    every 10 days from 2020-01-06
-D-7-* Y*                        last 7 days of every year
+D-7:* Y*                        last 7 days of every year
 M!7                             every month except July
 ```
 
@@ -20,7 +20,7 @@ A DTRExp denotes a — possibly infinite — set of time intervals. You don't ex
 
 Software constantly needs to store *"when does this apply?"* as data — not as code, not as a materialized list of dates:
 
-- a permission valid only during business hours (`grant.scope = "T0900-1800 E1-5"`),
+- a permission valid only during business hours (`grant.scope = "T0900:1800 E1:5"`),
 - a price rule for the last week of every quarter,
 - a maintenance window every 10 days,
 - content that publishes on the 2nd Sunday of May, forever.
@@ -38,12 +38,12 @@ No single existing format combines all of these; each row breaks at least one in
 
 | Capability | Example | Who else fails |
 | --- | --- | --- |
-| **Intervals, not instants** — components denote spans (`M3` = all of March) | `T0900-1800 E1-5` | cron (fires at instants); RRULE (recurrence of *start* instants; duration lives outside the rule) |
+| **Intervals, not instants** — components denote spans (`M3` = all of March) | `T0900:1800 E1:5` | cron (fires at instants); RRULE (recurrence of *start* instants; duration lives outside the rule) |
 | **Coverage as the primitive** — membership test, no enumeration | `covers(now)` | RRULE (must iterate occurrences); ISO 8601 intervals (no evaluation model at all) |
-| **First-class negation** | `M!7`, `E!6-7` | cron, ISO 8601, opening_hours (only "off" overrides); RRULE (only enumerated `EXDATE`s) |
+| **First-class negation** | `M!7`, `E!6:7` | cron, ISO 8601, opening_hours (only "off" overrides); RRULE (only enumerated `EXDATE`s) |
 | **Anchored cadences** — patterns that drift across calendar boundaries | `20200106/10D` (every 10 days), `20180301/14M` (every 14 months) | cron (famously impossible); opening_hours; ISO 8601-1 |
 | **Calendar ordinals** | `E7#-1 M4` (last Sunday of April) | cron (only Quartz's `L`/`#` extensions); ISO 8601 repeating intervals |
-| **Infinite recursion + absolute bounds in one literal** | `E1 M3 20180101-*` | ISO 8601 (`R` counts, doesn't select); cron (no bounds) |
+| **Infinite recursion + absolute bounds in one literal** | `E1 M3 20180101:*` | ISO 8601 (`R` counts, doesn't select); cron (no bounds) |
 | **One compact literal** — no multi-property envelope | the whole examples column | RRULE/iCalendar, JSCalendar (property bags), later.js (JSON/builder) |
 
 And one meta-capability: **conformance by test vectors.** The spec ships `vectors.json` (expression, instant, tz → expected); an implementation is conforming iff it passes them. The prose explains; the vectors decide.

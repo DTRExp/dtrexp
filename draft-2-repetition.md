@@ -20,12 +20,12 @@ Attach `/<interval>[/<duration>]` to a normal selector: _from the range start, e
 | `H0/4` | every 4th hour from hour 0, each day | 00, 04, 08, 12, 16, 20 |
 | `M1/3` | every 3rd month from January, each year | Jan, Apr, Jul, Oct |
 | `M1/5/2` | every 5 months, 2 months long | Jan–Feb, Jun–Jul, Nov–Dec |
-| `Y2020-2040/3` | every 3rd year of that range | 2020, 2023, 2026, … 2038 |
+| `Y2020:2040/3` | every 3rd year of that range | 2020, 2023, 2026, … 2038 |
 
 Rules:
 
 - **Legal only when it fits inside the parent cycle** (`n` ≤ parent's span). `M3/14` is a **syntax error** — 14 months can't repeat inside one year; that's a cadence (below).
-- **The range start is the anchor.** `Y2020-2040/3` anchors at 2020. Bare `Y*/3` is a syntax error — no start, no anchor. (This kills the old "every 3 years… from when?" / year-0 problem by construction.)
+- **The range start is the anchor.** `Y2020:2040/3` anchors at 2020. Bare `Y*/3` is a syntax error — no start, no anchor. (This kills the old "every 3 years… from when?" / year-0 problem by construction.)
 - The first number after `/` is always the **interval**; the optional second is the **duration** — the same order as cadences (`20180301/14M/2M`). `1 ≤ duration < interval`.
 - Evaluation is one modulo: `(value − start) % interval < duration`. No dates, no iteration.
 
@@ -53,16 +53,16 @@ Components still just intersect, like everything else in DTRExp:
 
 | Expression | Meaning |
 | --- | --- |
-| `T0900-1200 20200106/10D` | 09:00–12:00, on every 10th day from 2020-01-06 |
-| `m0-19 H0/4` | first 20 minutes of every 4th hour (Einstein's nap) |
+| `T0900:1200 20200106/10D` | 09:00–12:00, on every 10th day from 2020-01-06 |
+| `m0:19 H0/4` | first 20 minutes of every 4th hour (Einstein's nap) |
 | `E1 20180301/14M` | Mondays that fall inside each 14-month recurrence window |
 
 ## Migrating the old examples
 
 | Old (draft-1 / DTRExp) | Draft 2 |
 | --- | --- |
-| `M3/14/14/* Y2018-*` (every 14 months after 2018-03) | `20180301/14M` |
-| `m0:20 H00/1/4/*` (Einstein) | `m0-19 H0/4` |
+| `M3/14/14/* Y2018:*` (every 14 months after 2018-03) | `20180301/14M` |
+| `m0:20 H00/1/4/*` (Einstein) | `m0:19 H0/4` |
 | `M3/1/2/*` (every 2nd month from March) | `M3/2` |
 | `D3:100/5/2/10:15` (repetition indices) | **gone** — bound the cadence with a date range instead |
 
