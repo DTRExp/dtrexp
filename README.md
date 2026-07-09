@@ -1,6 +1,6 @@
 # DTRExp
 
-**Date-Time Range & Recursion Expression** — a compact string expression for describing *when*, evaluated by *coverage*.
+**Date-Time Range & Recursion Expression** — a compact string expression for describing *when*, evaluated by *coverage*. The name reads as "**DTR Expression**"; `dtrexp` is its package spelling.
 
 ```
 T0900:1800 E1:5                 Mon–Fri, 09:00–18:00

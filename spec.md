@@ -2,7 +2,7 @@
 
 **Draft 2.2** · Status: RFC · 2026-07-09 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
 
-A DTRExp is a compact string expression denoting a — possibly infinite — set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
+A DTRExp (read: "**DTR expression**") is a compact string expression denoting a — possibly infinite — set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
 
 ```
 T0900:1800 E1:5          business hours
