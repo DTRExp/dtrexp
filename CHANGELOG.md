@@ -1,5 +1,23 @@
 # Changes
 
+## Changes from draft 2.1 (draft 2.2)
+
+Locked 2026-07-09, from the findings of a **clean-room second implementation** (dtrexp-py, built from prose + vectors alone under an ambiguity-journal protocol). Its journal surfaced 28 underdetermined readings; 4 were live divergences — the reference and the clean-room implementation both passed the full vector suite while disagreeing on all four. Every fix below is vectored.
+
+| Was | Now | Why |
+| --- | --- | --- |
+| wrap decided on "literal **positive** endpoints" | "literal **non-negative** endpoints" — on 0-based domains a literal `0` wraps: `H22:0` = hours 22, 23, 0 | "positive" fit only 1-based units (the same editorial slip 2.1 fixed for stride starts); `H22:1` wrapped while `H22:0` was empty — a discontinuity exactly where "22:00 to midnight" is written |
+| `T0900:0900` silently empty (or implementation-defined) | equal `T` endpoints are a syntax error | half-open, it covers nothing; typo-shaped input fails loudly |
+| `20180120T09` tokenization unstated | the date literal's `T`-glue is unconditional — a malformed time-part is a syntax error, never re-tokenized as `20180120` + `T09` | one implementation errored, the other re-tokenized; "greedy" alone did not decide |
+| `*:*` bounds derivable from the EBNF | at least one endpoint must be a date literal; EBNF tightened | an unbounded window is spelled by omitting bounds; grammar overgenerated |
+| bounds zone unstated ("the absolute window") | bounds resolve in the **evaluation zone**; "absolute" means non-recurring, not UTC-pinned | both implementations chose local — by luck; no vector distinguished the readings |
+| cadence window end formula ambiguous for M/Y durations | end = `constrain(startₖ + duration)`, measured from the constrained start | the two readings diverge (Apr 30 + 1M = May 30 vs May 31); all constrain vectors used 1-day durations |
+| `Y` stride interval ceiling undefined (table had no `Y` row) | `Y` has no interval ceiling — `Y2020:*/100` valid | the cap exists so strides cannot drift; a year stride cannot drift at any interval |
+| negative-value parse limits unstated | symmetric domain check: `-max…-1`; 0-based resolution `max + 1 + v` (`H-1` = 23) | `D-31` vs `D-32` was implementation-defined |
+| `"Y*` is legal but redundant" | "…redundant **unless it rescopes a finer component**" (`D-7:*` ≠ `D-7:* Y*`) | the flat claim was false — deleting a "redundant" `Y*` changed meaning |
+| §9.1 warning SHOULD unbounded | required minimum defined (per-selector domain-size satisfiability, full-domain exclusions, `M`∩`Q` disjointness); union branches all surface | implementers could not tell how much static analysis conformance demands |
+| — | new vectors: bounds-in-zone (Berlin), month-duration window end, `H22:0` wrap, `Y` stride, `D-31`/`D-32`, `H-1`, equal-`T`, `T`-glue, `*:*`, dead-union-branch warning | six agreements previously held by luck are now pinned; four divergences decided |
+
 ## Changes from draft 2 (draft 2.1)
 
 Locked 2026-07-09 during implementation review. Breaking against draft 2, which nobody consumed — no compatibility owed.
