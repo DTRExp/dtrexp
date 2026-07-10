@@ -118,7 +118,7 @@ Considered and refused: **out-of-domain overflow** (`M14` = February, `D40 M3` =
 | `!` in 5 positions | `!` only after the designator | one negation, defined set semantics |
 | `F` / `L` / `+` ordinals | negative values + `E…#n` | one mechanism; `-1SU`-style familiarity |
 | `/duration/interval/repetition` tail | stride `/i[/d]` + anchored cadence | split by evaluation model (§5); anchor required by grammar |
-| repetition indices `/*3;5` | removed | bound the cadence with dates instead |
+| recurrence indices `/*3;5` | removed | bound the cadence with dates instead |
 | `<ᐧ <=ᐧ >ᐧ >=ᐧ =` operators | date-literal bounds (§6) | same power, less grammar |
 | `Y*3` (anchorless stride) | syntax error | epoch problem solved by construction |
 | week-of-month `W` | removed; `W` = ISO week-of-year, Y-scoped | ill-defined; notes-issues already conceded |

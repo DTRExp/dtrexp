@@ -1,4 +1,4 @@
-# DTRExp — Date-Time Range & Recursion Expression
+# DTRExp — Date-Time Range & Recurrence Expression
 
 **Draft 2.7** · Status: RFC · 2026-07-10 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
 
@@ -65,7 +65,7 @@ Notes:
 | list | `M1,3,7:9` | union of values/ranges |
 | all | `M*` | entire domain (explicit "every") |
 | exclusion | `M!5,7:9` | domain **minus** the listed set |
-| stride | `M1/3`, `M1/5/2` | repetition — §5.1 |
+| stride | `M1/3`, `M1/5/2` | recurrence — §5.1 |
 | ordinal (E only) | `E7#2`, `E7#-1` | nth / nth-from-last occurrence within the scope |
 
 Rules:
@@ -119,11 +119,11 @@ Gotcha: because the wrap stays within the day, `T2200:0600 E5` means Friday 00:0
 
 **Hour 24:** midnight-as-an-end is written `2400` — valid **only** as the exact 4-digit token in range-end position. `T0000:2400` is the whole day; "22:00 to midnight" is `T2200:2400`. No other spelling exists: the 2-digit `T22:24` and `T2300:24`, the seconds-precision `T0000:240000`, and `2400` as a range *start* are all syntax errors. Hour 24 is not a value, only an edge — one token, one position.
 
-## 5. Repetition
+## 5. Recurrence
 
 Two constructs, split by one question: **does the pattern look identical in every parent cycle?**
 
-### 5.1 Stride — calendar-locked repetition
+### 5.1 Stride — calendar-locked recurrence
 
 `<start>[:<end>]/<interval>[/<duration>]` on a normal selector. From `start`, every `interval`-th unit, covering `duration` units (default 1), stopping at `end` (default: domain edge).
 
@@ -144,7 +144,7 @@ Validity:
 
 The first number after `/` is **always the interval**; the optional second is the duration. (Same order as cadences.) A stride is pure sugar: `H0/4` ≡ `H0,4,8,12,16,20`.
 
-### 5.2 Cadence — anchor-based repetition
+### 5.2 Cadence — anchor-based recurrence
 
 `<date>/<n><unit>[/<n><unit>]` — a component that **starts with a date literal**: from this anchor, repeat every *period*, covering *duration* each time (default: **1 of the period's unit** — `…/14M` covers 1 month per recurrence, `…/10D` covers 1 day). Period/duration units: `Y M W D H m`.
 
