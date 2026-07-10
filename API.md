@@ -97,7 +97,7 @@ None of these affect conformance. But if you implement the operation, use the na
 | `intersect(a, b, window)` | The covered intervals of two expressions, clipped to a finite window. |
 | `describe([locale])` | Human-readable text of the expression. |
 | `toRRule()` | RFC 5545 export. Constrained cadences need RFC 7529 `SKIP=BACKWARD` — see [spec §9.2][spec-92]. |
-| `toString()` | The canonical form of the expression (not necessarily the original source). |
+| `toString()` | The canonical form of the expression (not necessarily the original source). Where the language gives every object a built-in string conversion (Java's `toString`, Go's `String`, Python's `__str__`), it returns the source verbatim until the canonical operation is implemented — never a debug wrapper. |
 
 ## Checklist for a new implementation
 
