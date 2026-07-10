@@ -311,6 +311,6 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 
 ## 12. Conformance
 
-An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases, warning cases, and **quiet** cases — expressions that must parse with *no* warning. The vectors — not the prose — are the contract.
+An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases, warning cases, and **quiet** cases — expressions that must parse with *no* warning. The vectors — not the prose — are the contract. A recommended library surface (what to name `parse`, `covers` and friends) lives in [API.md](API.md); it is informative, never a conformance requirement.
 
 The suite includes the calendar traps of §§9.1–9.3: `D29 M2` against 2023, 2024, 2000, and **2100**; `D-1` across leap February; `W53`; `E7#5`; `20240131/3M/1D` and `20240229/1Y/1D` constrain cases; midnight-wrap + weekday intersection; the hour-24 spellings (the valid `T…:2400` and every rejected variant); and DST-transition instants in `Europe/Berlin` (gap and overlap) — including cadence occurrence windows across both transitions, the `H`-period anchor in the fall-back overlap **and** in the spring-forward gap, and an `H`-duration window across the 25-hour fall-back night.
