@@ -84,7 +84,7 @@ Idiom wins on shape:
 The vocabulary does not:
 
 - The four operations — `parse`, `validate`, `covers`, `warnings` — and nothing else for these jobs. Not `isCovered`, not `check`, not `matches`.
-- The zone parameter of `covers` is an **IANA identifier** and its default is **UTC**. Always both.
+- The zone parameter of `covers` is an **IANA identifier** and its default is **UTC**. Always both — though in overloading languages the identifier form and the UTC default may live on different overloads of `covers` (a zone-object overload carrying the default, a string overload taking the identifier); what must hold is that the no-zone call means UTC and the IANA-string form exists.
 - Errors and warnings carry a **position**.
 
 ## Extended (Tier 2)
