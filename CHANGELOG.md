@@ -1,5 +1,13 @@
 # Changes
 
+## Changes from draft 2.7 (draft 2.8)
+
+Locked 2026-07-10. Vocabulary only — no grammar, evaluation, or vector change; the 2.7 vector suite is the 2.8 vector suite, byte for byte.
+
+| Was | Now | Why |
+| --- | --- | --- |
+| *Date-Time Range & **Recursion** Expression* in the title; "repetition" as the umbrella term in the prose (§5, `repetition.md`) — two words for one concept, both wrong-shaped | *Date-Time Range & **Recurrence** Expression*; **recurrence** is the one umbrella term — §5 retitled, `repetition.md` → `recurrence.md` | to a programmer, *recursion* is self-reference (a function calling itself) — a claim this spec never makes, and a false signal to exactly its audience; *repetition* is correct but generic — it names no domain. *Recurrence* is the established calendar-domain term (RFC 5545 `RRULE` = recurrence rule; Google Calendar, Microsoft Graph, EventKit all follow), so the title now states what the spec covers in the vocabulary implementers already search for — and one concept gets one word (the doctrine §3's `-0` decision already follows). Draft-1 syntax quoted in this file (the `/duration/interval/repetition` tail) stays verbatim — it names the old grammar, not the concept |
+
 ## Changes from draft 2.6 (draft 2.7)
 
 Locked 2026-07-10, from the fifth clean-room implementation's (dtrexp-java) journal — 21 entries, probed across all **six** codebases (five ports + reference). Ten behaviors pinned; two were owner doctrine calls; one probe exposed a crash no vector had ever reached.
