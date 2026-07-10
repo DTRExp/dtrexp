@@ -1,5 +1,15 @@
 # Changes
 
+## Changes from draft 2.4 (draft 2.5)
+
+Locked 2026-07-10, from the fourth clean-room implementation's (dtrexp-rs) journal — 21 entries, 18 of which the 2.4 prose already decided (the round validated the spec). The three `[VECTOR-GAP]`s were probed across all five implementations; two are pinned below, one (`Y0` and the `Y` domain bounds — a live 3–2 split among cold readers) is deferred to the owner.
+
+| Was | Now | Why |
+| --- | --- | --- |
+| gap anchors named "Temporal's `compatible`" but only the overlap→earlier direction was vectored; rs silently resolved gap anchors to the transition instant and passed the full suite | §9.3 example makes the gap direction concrete: `20240331T0230` in Berlin resolves to local 03:30 CEST (`01:30Z`) — pre-transition offset, pushed forward by the gap's length — **never** the transition instant; vectored (`dst-cadence-anchor-gap-forward`); rs fixed | 4–1 with normative prose on the majority side; an unvectored normative sentence is exactly how divergence hides |
+| backwards-bounds threshold undefined beyond one clearly-inverted vector | §6: a bounds range is backwards — syntax error — iff the first literal's span begins **at or after** the last literal's span end; equal literals cover the literal's span, mixed precision is valid in either order; vectored (invalid `…T1801:…T1800`, coverage equal-literal + mixed-precision) | 5-way unanimous behavior, previously held by luck |
+| zero on 1-based domains implied only by the domain tables (the swift journal's stumble #2, re-raised by rs) | §3 rule: literal `0` is out of domain on 1-based designators (`M0`, `D0`, `Q0`, `W0` are syntax errors); ordinary value on 0-based `H`/`m`/`s`; `D0` vectored beside the existing `M0` | two cold readers independently had to infer it; one sentence ends that |
+
 ## Changes from draft 2.3 (draft 2.4)
 
 Locked 2026-07-10, closing the round-3 triage (clean-room dtrexp-swift + the go/swift journals' prose findings). Two behavior decisions, two unanimous agreements pinned, and a new vector class.
