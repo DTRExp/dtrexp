@@ -1,5 +1,14 @@
 # Changes
 
+## Changes from draft 2.5 (draft 2.6)
+
+Locked 2026-07-10 (owner decision), closing the `Y` domain question the rs round surfaced: cold readers had split 3–2 on `Y0` and 2–3 on an upper bound, each implementation quietly inventing its own limits where the prose was silent.
+
+| Was | Now | Why |
+| --- | --- | --- |
+| `Y` domain "unbounded"; `Y0` and `Y12000` implementation-defined (js/py capped at 1–9999, go/swift/rs each drew different lines) | **`Y` takes 4-digit ISO years: 1–9999, everywhere** — selector values match the range the 8-digit `YYYYMMDD` date-literal grammar already commits to; `Y0` and `Y12000` are syntax errors; `*` on `Y` resolves to the domain edge (9999 / 1) like every other designator, so `Y2020:*` still reads "2020 and every later year" | one rule for values, literals, anchors and bounds; ISO 8601 without expanded representation is exactly the 4-digit years; year 0 is 1 BCE — an invitation to the zero-confusion §3 just closed |
+| wrap and negative-value rejections on `Y` justified by "no edge / unbounded domain" — a rationale the finite domain broke | rationale re-anchored: years are **absolute and non-cyclic** — wrap models a cyclic domain inside a parent instance and negatives count back from a parent's edge; `Y` sits inside nothing, so neither applies | the rules stand; only their reasons moved |
+
 ## Changes from draft 2.4 (draft 2.5)
 
 Locked 2026-07-10, from the fourth clean-room implementation's (dtrexp-rs) journal — 21 entries, 18 of which the 2.4 prose already decided (the round validated the spec). The three `[VECTOR-GAP]`s were probed across all five implementations; two are pinned below, one (`Y0` and the `Y` domain bounds — a live 3–2 split among cold readers) is deferred to the owner.

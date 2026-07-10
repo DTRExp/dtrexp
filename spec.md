@@ -1,6 +1,6 @@
 # DTRExp — Date-Time Range & Recursion Expression
 
-**Draft 2.5** · Status: RFC · 2026-07-10 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
+**Draft 2.6** · Status: RFC · 2026-07-10 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
 
 A DTRExp (read: "**DTR expression**") is a compact string expression denoting a — possibly infinite — set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
 
@@ -30,7 +30,7 @@ dtrexp      =  expression ∪ expression ∪ …        (via |)
 
 | Designator | Unit | Domain | Scoped by (nearest **of these** present, else default) |
 | --- | --- | --- | --- |
-| `Y` | year | e.g. `2026` | absolute |
+| `Y` | year | 1–9999 (ISO) | absolute |
 | `Q` | quarter | 1–4 | `Y` |
 | `M` | calendar month | 1–12 | `Y` |
 | `W` | ISO week | 1–53 | `Y` (always; week-of-month does not exist) |
@@ -72,9 +72,9 @@ Rules:
 
 - **Exclusion `!` appears only immediately after the designator** and negates the whole value list. That is the *only* position. "Months 1–10 except 5" is written explicitly: `M1:4,6:10`.
 - A component is *either* an exclusion *or* carries a stride — never both.
-- A range whose start exceeds its end **wraps** within the parent instance (`M11:2`, `H22:6`, `D25:5`) — same model as `T`'s midnight wrap (§4). `Y` is the one designator with no edge to wrap around: `Y2030:2020` is an error.
+- A range whose start exceeds its end **wraps** within the parent instance (`M11:2`, `H22:6`, `D25:5`) — same model as `T`'s midnight wrap (§4). `Y` is the one designator with no parent cycle to wrap around: years are **absolute and non-cyclic** (wrap is a cyclic domain repeating inside a parent instance — months within a year, hours within a day — and `Y` sits inside nothing), so `Y2030:2020` is an error.
 - Wrapping is decided **syntactically, on literal non-negative endpoints only**. On 0-based domains a literal `0` is an ordinary endpoint and wraps like any other: `H22:0` covers hours 22, 23 and 0 — the hour analogue of `T2200:0100`. A range containing a negative or `*` endpoint never wraps: it resolves per parent instance (§9.1) and covers nothing in any instance where the resolved start exceeds the resolved end. `D-1:5` is therefore empty in every month — and when emptiness is statically certain, it draws the §9.1 unsatisfiability warning.
-- Negative values are meaningless on `Y` (no edge to count back from — §3.1) and are rejected.
+- Negative values are meaningless on `Y` (years are absolute, not counted back from a parent instance's edge — §3.1) and are rejected.
 - A literal `0` is **out of domain on the 1-based designators** and a syntax error there — `M0`, `D0`, `Q0`, `W0` name no month, day, quarter or week — while on the **0-based** `H`/`m`/`s` it is an ordinary value: `H0` is midnight's hour, `m0` the first minute.
 - Negative values are domain-checked **symmetrically** at parse time: `-N … -1`, where *N* is the domain's maximum **size** — the count of its values (31 for month-scoped `D`, 24 for `H`; on 0-based domains this is not the same number as the largest value). `D-31` parses — and covers nothing in months without 31 days (§9.1), the mirror of `D31` in April — while `D-32` is out of domain, a syntax error. At evaluation a negative `v` counts back from the parent instance's actual edge, resolving to `maxValue + 1 + v` where *maxValue* is the instance's **largest value**: `D-1` in Feb 2024 is 29 + 1 + (−1) = 29; on `H` it is 23 + 1 + v, so `H-1` is hour 23 and `H-24` is hour 0.
 - `*` as a bare list item is rejected (`M1,*`): a list containing the whole domain *is* the whole domain — write `M*`.
@@ -86,7 +86,7 @@ Rules:
 
 Two ideas decide what every component value means; they are easy to conflate.
 
-**Domain** — the set of values a designator can take. Some are fixed (`M` is 1–12, `H` is 0–23), some depend on the calendar (`D` is 1–31 / 1–92 / 1–366), one is unbounded (`Y`).
+**Domain** — the set of values a designator can take. Some are fixed (`M` is 1–12, `H` is 0–23, `Y` is 1–9999), some depend on the calendar (`D` is 1–31 / 1–92 / 1–366).
 
 **Scope** — *which* instance of the parent the domain is measured against, per the §2 table. `D`'s domain is the days of one month by default; `D40 Q2` measures days against the quarter, so the domain becomes 1–92.
 
@@ -98,10 +98,10 @@ Two ideas decide what every component value means; they are easy to conflate.
 | `D25:* Q2` | quarter | last day of Q2 | Apr 25 → Jun 30 |
 | `M3:*` | year | December | March through December |
 | `H*:3` | day | 0 | hours 0–3 |
-| `Y2020:*` | *(none)* | +∞ | 2020 and every later year |
-| `Y*:2020` | *(none)* | −∞ | 2020 and every earlier year |
+| `Y2020:*` | *(none)* | 9999 | 2020 and every later year |
+| `Y*:2020` | *(none)* | 1 | 2020 and every earlier year |
 
-`Y`'s domain has no edge, so the same rule yields "onwards forever" there — that is a property of the domain, not a second meaning of `*`.
+`Y`'s edges are the format's own limits — years 1 and 9999, the 4-digit ISO range the 8-digit `YYYYMMDD` date-literal grammar already commits to (§6) — so `Y2020:*` reads "2020 through the end of the representable timeline"; still the same single meaning of `*`, resolving to the domain edge like everywhere else.
 
 A range may put `*` at **both** ends: `M*:*` is accepted, each `*` independently resolving to its edge, and means exactly `M*` — which is the canonical spelling. (Bounds are the exception: an undesignated `*:*` is a syntax error — §6.)
 
