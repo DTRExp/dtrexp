@@ -1,5 +1,20 @@
 # Changes
 
+## Changes from draft 2.3 (draft 2.4)
+
+Locked 2026-07-10, closing the round-3 triage (clean-room dtrexp-swift + the go/swift journals' prose findings). Two behavior decisions, two unanimous agreements pinned, and a new vector class.
+
+| Was | Now | Why |
+| --- | --- | --- |
+| "`2400` is valid only as a range end" — silent on spelling: `T22:24`, `T2300:24`, `T0000:240000` accepted by half the implementations | **hour 24 is the exact 4-digit token `2400`, in range-end position only** — every other spelling is a syntax error; canonical "to midnight" is `T2200:2400` | both fresh clean-room readers independently derived the narrow reading (2–2 split against the older implementations); one-way-to-say-it doctrine |
+| `D366 Y2021` accepted silently by half the implementations | `D366` under concrete years that lack it **must warn** — it falls inside the §9.1 written minimum (domain sizes implied by co-present selectors; the day-of-year twin of `W53 Y2021`); range forms included (`D366:* Y2021` resolves 366:365, backwards in every instance) | the minimum already required it; the vectors didn't pin it |
+| §9.1 minimum said nothing about how far concrete-year checks must scan | required only over **closed** year spans ≤ 1,000 years; open/wider spans MAY stay quiet; with `W` present, `Y` is the week-year and `D366`×week-year MUST stay quiet (`D366 W1 Y2025` covers Dec 31 2024) | implementers could not tell how much enumeration conformance demands; the week-year corner produces a genuinely covered day 366 in a 365-day selector year |
+| warnings testable in one direction only — nothing pinned what must NOT warn | new **`quiet`** vector section: expressions that must parse with **zero** warnings (`D366 Y2020`, `W53 Y2020`, open spans, the week-year corner, true wraps) | a linter that cries wolf is as non-conforming as a silent one; false positives were unfalsifiable |
+| `H`/`m` durations inside calendar-period cadence windows undecided in prose (4-way unanimous in code) | pinned: the duration follows the period's **naive wall-clock** arithmetic (`20241026T2300/2D/12H` in Berlin ends at local 11:00 across the 25-hour night — 12 wall hours, 13 absolute) | unanimity is not a contract until vectored; this was the last un-pinned DST corner |
+| `M*:*` accepted by all four, undocumented | pinned in §3.1 and vectored: `M*:*` ≡ `M*` (canonical: `M*`); bounds `*:*` stays an error | same — verification without pinning rots (the hour-24 lesson) |
+| §3 "max" meant element **count** in the parse check and largest **value** in the resolution formula, three lines apart | parse check uses *N* = domain **size**; resolution is `maxValue + 1 + v` with *maxValue* the instance's largest value | the swift journal's first stumble — the examples disambiguated, the prose didn't |
+| — | §9.3: the fall-back transition instant itself carries **post-transition** fields (Berlin `2024-10-27T01:00:00Z` = local 02:00:00 CET) | the boundary case was decidable only from a vector, not the prose |
+
 ## Changes from draft 2.2 (draft 2.3)
 
 Locked 2026-07-09, from the second clean-room implementation's (dtrexp-go) one substantive finding: no vector exercised a cadence on a DST transition, and the three implementations had quietly built **three different models** there. §9.3 now decides it.
