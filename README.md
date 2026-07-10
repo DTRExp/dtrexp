@@ -1,6 +1,6 @@
 # DTRExp
 
-**Date-Time Range & Recursion Expression** — a compact string expression for describing *when*, evaluated by *coverage*. The name reads as "**DTR Expression**"; `dtrexp` is its package spelling.
+**Date-Time Range & Recurrence Expression** — a compact string expression for describing *when*, evaluated by *coverage*. The name reads as "**DTR Expression**"; `dtrexp` is its package spelling.
 
 ```
 T0900:1800 E1:5                 Mon–Fri, 09:00–18:00
@@ -14,7 +14,7 @@ m0:19 H0/4                      da Vinci's nap — 20 min every 4 hours (per the
 
 A DTRExp denotes a — possibly infinite — set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
 
-**Status: Draft 2.1 (RFC).** See [spec.md](spec.md) for the full specification and [repetition.md](repetition.md) for the repetition-model rationale. (Draft 1 and the DTRExp generation are superseded and archived outside this repo.)
+**Status: Draft 2.1 (RFC).** See [spec.md](spec.md) for the full specification and [recurrence.md](recurrence.md) for the recurrence-model rationale. (Draft 1 and the DTRExp generation are superseded and archived outside this repo.)
 
 ---
 
@@ -46,7 +46,7 @@ No single existing format combines all of these; each row breaks at least one in
 | **Anchored cadences** — patterns that drift across calendar boundaries | `20200106/10D` (every 10 days), `20180301/14M` (every 14 months) | cron (famously impossible); opening_hours; ISO 8601-1 |
 | **Calendar ordinals** | `E7#-1 M4` (last Sunday of April) | cron (only Quartz's `L`/`#` extensions); ISO 8601 repeating intervals |
 | **Day-of-month ∩ weekday** | `D13 E5` (every Friday the 13th) | cron — its oldest gotcha: DOM + DOW is **OR**, not AND |
-| **Infinite recursion + absolute bounds in one literal** | `E1 M3 20180101:*` | ISO 8601 (`R` counts, doesn't select); cron (no bounds) |
+| **Infinite recurrence + absolute bounds in one literal** | `E1 M3 20180101:*` | ISO 8601 (`R` counts, doesn't select); cron (no bounds) |
 | **One compact literal** — no multi-property envelope | the whole examples column | RRULE/iCalendar, JSCalendar (property bags), later.js (JSON/builder) |
 
 And one meta-capability: **conformance by test vectors.** The spec ships `vectors.json` (expression, instant, tz → expected); an implementation is conforming iff it passes them. The prose explains; the vectors decide.
@@ -65,7 +65,7 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Good at:** interchange of *concrete* times. `2018-03-01/P1M` is unambiguous and universally parseable. Repeating intervals (`R5/2018-03-01/P14M`) express linear anchored cadences — DTRExp's cadence component (§5.2) is deliberately isomorphic to them, so that subset round-trips.
 
-**Fails at:** selection. ISO 8601-1 has no way to say "last Sunday of April," "weekdays," "except July," or to combine rules — `R` only counts repetitions of one interval. ISO 8601-2:2019 (the extension) does add rule-based recurrences (an RRULE-alike) plus seasons and approximate dates — but it inherits RRULE's model and verbosity, and its real-world adoption is close to zero: you will not find a parser for it in your stack.
+**Fails at:** selection. ISO 8601-1 has no way to say "last Sunday of April," "weekdays," "except July," or to combine rules — `R` only counts recurrences of one interval. ISO 8601-2:2019 (the extension) does add rule-based recurrences (an RRULE-alike) plus seasons and approximate dates — but it inherits RRULE's model and verbosity, and its real-world adoption is close to zero: you will not find a parser for it in your stack.
 
 *Use ISO 8601 when:* exchanging concrete timestamps and simple repeating intervals across systems. DTRExp uses its date syntax (`YYYYMMDD`) precisely for this familiarity.
 
@@ -110,7 +110,7 @@ Honesty cuts both ways. DTRExp does **not** try to be:
 
 1. **One way to say it.** One range operator (inclusive `:`; half-open only for clock time), one negation position, one ordinal mechanism, one stride form.
 2. **Ambiguity is a syntax error.** An anchorless stride (`Y*/3` — "every 3rd year from *when?*") doesn't get a default; it doesn't parse.
-3. **Two kinds of repetition, two constructs.** Calendar-locked patterns are strides on selectors; boundary-crossing patterns are date-anchored cadences. They evaluate differently, so they read differently.
+3. **Two kinds of recurrence, two constructs.** Calendar-locked patterns are strides on selectors; boundary-crossing patterns are date-anchored cadences. They evaluate differently, so they read differently.
 4. **The vectors are the contract.** If prose and `vectors.json` ever disagree, the vectors win and the prose gets fixed.
 5. **DST correctness is emergent, not special-cased.** Coverage is defined on instants, and calendar fields are extracted from the instant in the evaluation zone — so spring-forward gaps cover nothing and fall-back repeats cover both passes, with no DST rules in the model. (Independent clean-room implementations discover this property rather than code it.)
 
@@ -119,7 +119,7 @@ Honesty cuts both ways. DTRExp does **not** try to be:
 | File | What |
 | --- | --- |
 | [spec.md](spec.md) | current specification (grammar, semantics, examples) |
-| [repetition.md](repetition.md) | the stride/cadence split, explained |
+| [recurrence.md](recurrence.md) | the stride/cadence split, explained |
 | [vectors.json](vectors.json) | conformance test vectors — the contract |
 
 A reference implementation ([`dtrexp-js`](https://github.com/DTRExp/dtrexp-js) — TypeScript, ESM, zero dependencies) is developed against the vectors.

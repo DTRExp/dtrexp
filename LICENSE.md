@@ -4,7 +4,7 @@ Copyright (c) 2026, Onur Yıldırım <onur@cutepilot.com>
 
 ## Specification text — CC-BY-4.0
 
-The DTRExp specification documents in this repository — `spec.md`, `repetition.md`, `CHANGELOG.md`, and `README.md` — are licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/) (SPDX: `CC-BY-4.0`).
+The DTRExp specification documents in this repository — `spec.md`, `recurrence.md`, `CHANGELOG.md`, and `README.md` — are licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/) (SPDX: `CC-BY-4.0`).
 
 You may copy, redistribute, adapt, and translate these documents for any purpose, provided you give appropriate credit ("DTRExp specification, © Onur Yıldırım", with a link to this repository), link to the license, and indicate if changes were made.
 
