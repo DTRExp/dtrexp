@@ -19,9 +19,21 @@ expr.covers(instant, tz='Europe/Berlin')  # —> True
 
 Same vocabulary, same defaults, same mental model.
 
+## Naming: the words are fixed, the casing is yours
+
+An operation name in this document is a **sequence of words** — render it in your language's convention:
+
+| Convention | Languages (e.g.) | `covers` | `covers in` | `to rrule` |
+| --- | --- | --- | --- | --- |
+| camelCase | JavaScript, Java, Swift | `covers` | `coversIn` | `toRRule` |
+| PascalCase | Go, C# | `Covers` | `CoversIn` | `ToRRule` |
+| snake_case | Python, Rust, Ruby | `covers` | `covers_in` | `to_rrule` |
+
+The words never change; the rendering always follows the language. In other words; `coversIn`, `CoversIn` and `covers_in` are the **same operation** — while `isCovered` or `matches` would be a different vocabulary, which is exactly what this document exists to prevent.
+
 ## Core (Tier 1)
 
-Every DTRExp library provides these four operations. Names keep the language's own casing (`covers` in Python, `Covers` in Go); everything else about them is fixed.
+Every DTRExp library provides these four operations; everything about them is fixed except the rendering above.
 
 ### `parse(expression)`
 
@@ -66,12 +78,13 @@ Idiom wins on shape:
 
 - **Types** follow the language: `datetime` in Python, `time.Time` in Go, `Instant` in Java, epoch millis + a zone handle in Rust.
 - **Failure** follows the language: exceptions, `Result`, `(value, error)` returns.
-- **Extras** are fine: an overload that takes a preloaded zone object, a convenience that accepts ISO strings.
+- **Preloaded zones**: where zone lookup by identifier is costly or fallible, a variant named `covers in` (rendered per convention: `coversIn`, `CoversIn`, `covers_in`) MAY take the language's zone object instead of the IANA string. Where the language supports overloading, overloading `covers` itself is equally fine — then no extra name exists at all.
+- **Extras** are fine: a convenience that accepts ISO strings, extra overloads.
 
 The vocabulary does not:
 
-- The four names — `parse`, `validate`, `covers`, `warnings` — in the language's casing, nothing else. Not `isCovered`, not `check`, not `matches`.
-- The zone parameter is an **IANA identifier** and its default is **UTC**. Always both.
+- The four operations — `parse`, `validate`, `covers`, `warnings` — and nothing else for these jobs. Not `isCovered`, not `check`, not `matches`.
+- The zone parameter of `covers` is an **IANA identifier** and its default is **UTC**. Always both.
 - Errors and warnings carry a **position**.
 
 ## Extended (Tier 2)
