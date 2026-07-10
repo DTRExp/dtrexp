@@ -1,5 +1,22 @@
 # Changes
 
+## Changes from draft 2.6 (draft 2.7)
+
+Locked 2026-07-10, from the fifth clean-room implementation's (dtrexp-java) journal — 21 entries, probed across all **six** codebases (five ports + reference). Ten behaviors pinned; two were owner doctrine calls; one probe exposed a crash no vector had ever reached.
+
+| Was | Now | Why |
+| --- | --- | --- |
+| `T` range endpoints' precision semantics unstated | endpoints resolve to their literal's span-**start** instant (`T0900:12` ends at 12:00); equal *resolved* endpoints reject (`T12:1200`) — bounds (§6) remain the one place a coarse literal contributes its full span | 6-way unanimous, previously held by luck; the §4↔§6 asymmetry is now stated instead of discovered |
+| whitespace never defined; the EBNF allowed spaces only between components while §7's own examples put them around `\|` | ASCII space runs — between components, around `\|`, at either end; tabs and all other whitespace are errors | 6-way unanimous |
+| `D`/`W` **durations** inside `H`/`m`-period cadences undefined at evaluation | fixed absolute lengths (`D` = 24 h, `W` = 168 h) — an absolute grid has no calendar anchor to constrain against; vectored across the Berlin spring-forward | 5-way agreement — and dtrexp-rs **crashed** (`unreachable!`) on the very first evaluation, proof the corner had zero coverage |
+| scope resolution ("nearest of `M`/`Q`/`Y`") ambiguous between granularity and textual order; single-pass parsers would wrongly reject `Q2 D40` | "nearest" = finest granularity present, never position; static validity applies to the **completed expression** (`Q2 D40` valid, `Q2 D40 M1` rejected) | 6-way unanimous; two journals independently flagged the ordering trap |
+| `-0` accepted as hour 0 by four of six implementations | **a signed zero is never a value** — the `-` requires a nonzero integer; `H0` is the only spelling of hour 0 | owner decision (one way to say it); matches the reference |
+| `E-1#2` rejected by one of six | the ordinal's base may be negative and resolves against `E`'s fixed domain first: `E-1#2` ≡ `E7#2` | owner decision (text as written — the grammar derives it, no rule bans it) |
+| stride range ends implicitly restricted alongside starts by a broad reading of §3 | only the **start** must be non-negative; a negative end clips per parent instance (`D2:-1/5` valid) | 6-way unanimous; the anti-drift rationale only ever applied to the anchor |
+| statically-dead strides unflagged in the reference (`D30:*/2 M2`) | a stride is sugar over a range and participates in the §9.1 minimum; js gains the check | 5–1 inside the written minimum |
+| hour 24 in date literals, star-endpoint ranges in lists — unstated | `20180120T2400/1D` rejects (hour 24 is a `T`-range token only); `M11:*,5` and `M*:3,7` are valid list items (only the bare `*` is banned) | 6-way unanimous |
+| — | `D29 M2 Y2021`: rs warns (deeper, correct analysis), five stay quiet — left unpinned by design: §9.1 already licenses quality-of-implementation warnings beyond the minimum, and a vector could only ban one of two legitimate behaviors | recorded so it is never mistaken for an oversight |
+
 ## Changes from draft 2.5 (draft 2.6)
 
 Locked 2026-07-10 (owner decision), closing the `Y` domain question the rs round surfaced: cold readers had split 3–2 on `Y0` and 2–3 on an upper bound, each implementation quietly inventing its own limits where the prose was silent.
