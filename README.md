@@ -12,9 +12,9 @@ M!7                             every month except July
 m0:19 H0/4                      da Vinci's nap — 20 min every 4 hours (per the legend)
 ```
 
-A DTRExp denotes a — possibly infinite — set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
+A DTRExp denotes a possibly infinite set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
 
-**Status: Draft 2.1 (RFC).** See [spec.md](spec.md) for the full specification and [recurrence.md](recurrence.md) for the recurrence-model rationale. (Draft 1 and the DTRExp generation are superseded and archived outside this repo.)
+**Status: Draft 2.8 (RFC).** See [spec.md](spec.md) for the full specification and [recurrence.md](recurrence.md) for the recurrence-model rationale. (Draft 1 and the DTRE generation are superseded and archived outside this repo.)
 
 ---
 
@@ -30,9 +30,9 @@ Software constantly needs to store *"when does this apply?"* as data — not as 
 Two properties make this hard for existing formats:
 
 1. **The set is infinite.** "Every Monday, forever" cannot be stored as date objects. It must stay an expression, and the expression must be *checkable* without expansion.
-2. **The check is on the hot path.** An access-control decision runs on every request. Whatever answers "are we currently inside the window?" must be cheap — ideally a handful of integer comparisons, not an iteration over generated occurrences.
+2. **The check is on the hot path.** An access-control decision runs on every request. Whatever answers "are we currently inside the window?" must be cheap; a handful of integer comparisons, not an iteration over generated occurrences.
 
-DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant, or a config file — with **O(1) coverage evaluation** (one calendar-field extraction, then per-component integer tests; see spec.md §9).
+DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant or a config file, with **O(1) coverage evaluation**. One calendar-field extraction, then per-component integer tests (spec.md §9).
 
 ## What can DTRExp express that others can't?
 
@@ -49,7 +49,7 @@ No single existing format combines all of these; each row breaks at least one in
 | **Infinite recurrence + absolute bounds in one literal** | `E1 M3 20180101:*` | ISO 8601 (`R` counts, doesn't select); cron (no bounds) |
 | **One compact literal** — no multi-property envelope | the whole examples column | RRULE/iCalendar, JSCalendar (property bags), later.js (JSON/builder) |
 
-And one meta-capability: **conformance by test vectors.** The spec ships `vectors.json` (expression, instant, tz → expected); an implementation is conforming iff it passes them. The prose explains; the vectors decide.
+And one meta-capability: **conformance by test vectors.** The spec ships `vectors.json` (expression, instant, tz → expected); an implementation is conforming iff it passes them. See [VECTORS.md](VECTORS.md) for the file's structure and how to wire it into an implementation.
 
 ## The alternatives, honestly
 
@@ -65,7 +65,7 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Good at:** interchange of *concrete* times. `2018-03-01/P1M` is unambiguous and universally parseable. Repeating intervals (`R5/2018-03-01/P14M`) express linear anchored cadences — DTRExp's cadence component (§5.2) is deliberately isomorphic to them, so that subset round-trips.
 
-**Fails at:** selection. ISO 8601-1 has no way to say "last Sunday of April," "weekdays," "except July," or to combine rules — `R` only counts recurrences of one interval. ISO 8601-2:2019 (the extension) does add rule-based recurrences (an RRULE-alike) plus seasons and approximate dates — but it inherits RRULE's model and verbosity, and its real-world adoption is close to zero: you will not find a parser for it in your stack.
+**Fails at:** selection. ISO 8601-1 has no way to say "last Sunday of April," "weekdays," "except July," or to combine rules; `R` only counts recurrences of one interval. ISO 8601-2:2019 (the extension) does add rule-based recurrences (an RRULE-alike) plus seasons and approximate dates, but it inherits RRULE's model and verbosity, and its real-world adoption is close to zero. You will not find a parser for it in your stack.
 
 *Use ISO 8601 when:* exchanging concrete timestamps and simple repeating intervals across systems. DTRExp uses its date syntax (`YYYYMMDD`) precisely for this familiarity.
 
@@ -73,7 +73,7 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Good at:** calendar-event recurrence. The most expressive incumbent by far: `FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU` *is* "last Sunday of April." `BYSETPOS`, negative ordinals, `COUNT`/`UNTIL` bounds, well-understood by every calendar system on earth. If your problem is "when does this *event* repeat," RRULE is the right and standard answer.
 
-**Fails at:** being a coverage expression. An RRULE describes the recurrence of an event's **start instants**; the covered *interval* comes from the surrounding `DTSTART`/`DTEND` component — the rule alone doesn't denote a set of spans. Answering "does this instant fall inside an occurrence?" requires **iterating occurrences** to find the neighborhood — fine for rendering a calendar month, wrong for a per-request permission check. Exceptions are enumerated dates (`EXDATE`), not rules (`EXRULE` was deprecated by RFC 5545 itself) — "every month except July, forever" has no finite representation. It's a multi-property text envelope, not a literal you drop into a column. And the JavaScript flagship, [rrule.js](https://github.com/jkbrzt/rrule), sits at ~1.7M weekly downloads with no release in over a year.
+**Fails at:** being a coverage expression. An RRULE describes the recurrence of an event's **start instants**; the covered *interval* comes from the surrounding `DTSTART`/`DTEND` component, so the rule alone doesn't denote a set of spans. Answering "does this instant fall inside an occurrence?" requires **iterating occurrences** to find the neighborhood. That's fine for rendering a calendar month; wrong for a per-request permission check. Exceptions are enumerated dates (`EXDATE`), not rules (`EXRULE` was deprecated by RFC 5545 itself), so "every month except July, forever" has no finite representation. It's a multi-property text envelope, not a literal you drop into a column. And the JavaScript flagship, [rrule.js](https://github.com/jkbrzt/rrule), sits at ~1.7M weekly downloads with no release in over a year.
 
 *Use RRULE when:* interoperating with calendar systems. DTRExp specifies `toRRule()` for its losslessly-mappable subset for exactly this reason.
 
@@ -99,20 +99,20 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 ## Where DTRExp deliberately does less
 
-Honesty cuts both ways. DTRExp does **not** try to be:
+What a format does *not* do should be stated as directly as what it does. DTRExp is **not**:
 
 - **A job scheduler.** No jitter, no missed-run policy, no execution semantics. Pair it with a scheduler if you need triggers.
 - **A calendar-event interchange format.** No attendees, no event metadata, no per-occurrence overrides. That's iCalendar/JSCalendar's job; use `toRRule()` at the boundary.
 - **A natural-language parser.** `E7#2 M5` is written by people who read a one-page spec, not by parsing "second Sunday of May."
 - **Timezone-clever.** Expressions are tz-agnostic by design; the zone is an evaluation parameter (default UTC). This is a feature — "09:00–18:00" means local business hours wherever you evaluate it — but it means a single expression can't mix zones.
 
-## Design principles (draft 2.1)
+## Design principles
 
 1. **One way to say it.** One range operator (inclusive `:`; half-open only for clock time), one negation position, one ordinal mechanism, one stride form.
 2. **Ambiguity is a syntax error.** An anchorless stride (`Y*/3` — "every 3rd year from *when?*") doesn't get a default; it doesn't parse.
 3. **Two kinds of recurrence, two constructs.** Calendar-locked patterns are strides on selectors; boundary-crossing patterns are date-anchored cadences. They evaluate differently, so they read differently.
 4. **The vectors are the contract.** If prose and `vectors.json` ever disagree, the vectors win and the prose gets fixed.
-5. **DST correctness is emergent, not special-cased.** Coverage is defined on instants, and calendar fields are extracted from the instant in the evaluation zone — so spring-forward gaps cover nothing and fall-back repeats cover both passes, with no DST rules in the model. (Independent clean-room implementations discover this property rather than code it.)
+5. **DST correctness is emergent, not special-cased.** Coverage is defined on instants, and calendar fields are extracted from the instant in the evaluation zone; so spring-forward gaps cover nothing and fall-back repeats cover both passes, with no DST rules in the model. Independent implementations discover this property rather than code it.
 
 ## Repository layout
 
@@ -121,8 +121,12 @@ Honesty cuts both ways. DTRExp does **not** try to be:
 | [spec.md](spec.md) | current specification (grammar, semantics, examples) |
 | [recurrence.md](recurrence.md) | the stride/cadence split, explained |
 | [vectors.json](vectors.json) | conformance test vectors — the contract |
+| [VECTORS.md](VECTORS.md) | the vectors explained: structure, conformance criteria, wiring |
+| [API.md](API.md) | recommended library interface — fixed operation names, per-language casing |
+| [CHANGELOG.md](CHANGELOG.md) | draft-by-draft changes, each with its reasoning |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | how feedback comes in (issues, not PRs) and why |
 
-A reference implementation ([`dtrexp-js`](https://github.com/DTRExp/dtrexp-js) — TypeScript, ESM, zero dependencies) is developed against the vectors.
+Implementations, each developed against the vectors: [`dtrexp-js`](https://github.com/DTRExp/dtrexp-js) (TypeScript — the reference), [`dtrexp-py`](https://github.com/DTRExp/dtrexp-py), [`dtrexp-go`](https://github.com/DTRExp/dtrexp-go), [`dtrexp-swift`](https://github.com/DTRExp/dtrexp-swift), [`dtrexp-rs`](https://github.com/DTRExp/dtrexp-rs), [`dtrexp-java`](https://github.com/DTRExp/dtrexp-java). All zero-dependency.
 
 ## Feedback
 
