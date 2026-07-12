@@ -1,6 +1,6 @@
 # Contributing
 
-DTRExp is in an open comment window (Draft 2.1). Feedback is genuinely wanted — ambiguities found now are grammar fixes; found later, they're breaking changes.
+DTRExp is in an open comment window (Draft 2; the current revision is in [spec.md](spec.md)'s header). Feedback is genuinely wanted — ambiguities found now are grammar fixes; found later, they're breaking changes.
 
 ## How to contribute: open an issue
 

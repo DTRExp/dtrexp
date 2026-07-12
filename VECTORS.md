@@ -62,7 +62,7 @@ Each group is one expression evaluated at several instants:
 { "expression": "D366 Y2020", "note": "leap year 2020 has a day 366" }
 ```
 
-A `warnings` expression parses successfully **and** reports at least one warning (spec §9.1). A `quiet` expression parses with none; each carries a *note* explaining why warning on it would be wrong. Warning texts are not pinned — only the fact of warning.
+A `warnings` expression parses successfully **and** reports at least one warning ([spec §9.1](spec.md#91-the-existence-rule)). A `quiet` expression parses with none; each carries a *note* explaining why warning on it would be wrong. Warning texts are not pinned — only the fact of warning.
 
 ## Wiring it into an implementation
 

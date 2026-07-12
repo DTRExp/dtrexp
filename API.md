@@ -8,13 +8,13 @@ An expression like `T0900:1800 E1:5` means the same thing in every language. The
 
 ```js
 // JavaScript
-const expr = parse('T0900:1800 E1:5');
-expr.covers('2026-07-07T10:00:00Z', { tz: 'Europe/Berlin' }); // —> true
+const dtr = parse('T0900:1800 E1:5');
+dtr.covers('2026-07-07T10:00:00Z', { tz: 'Europe/Berlin' }); // —> true
 ```
 ```python
 # Python
-expr = dtrexp.parse('T0900:1800 E1:5')
-expr.covers(instant, tz='Europe/Berlin')  # —> True
+dtr = dtrexp.parse('T0900:1800 E1:5')
+dtr.covers(instant, tz='Europe/Berlin')  # —> True
 ```
 
 Same vocabulary, same defaults, same mental model.

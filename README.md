@@ -9,8 +9,10 @@ E7#-1 M4                        last Sunday of April, every year
 D13 E5                          every Friday the 13th
 D-7:* Y*                        last 7 days of every year
 M!7                             every month except July
-m0:19 H0/4                      da Vinci's nap — 20 min every 4 hours (per the legend)
+m0:19 H0/4                      Leonardo da Vinci's sleep (per the legend)
 ```
+
+That last line is da Vinci's polyphasic sleep schedule; per the legend, he napped 20 minutes every 4 hours. Business hours are easier.
 
 A DTRExp denotes a possibly infinite set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
 
@@ -32,7 +34,7 @@ Two properties make this hard for existing formats:
 1. **The set is infinite.** "Every Monday, forever" cannot be stored as date objects. It must stay an expression, and the expression must be *checkable* without expansion.
 2. **The check is on the hot path.** An access-control decision runs on every request. Whatever answers "are we currently inside the window?" must be cheap; a handful of integer comparisons, not an iteration over generated occurrences.
 
-DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant or a config file, with **O(1) coverage evaluation**. One calendar-field extraction, then per-component integer tests (spec.md §9).
+DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant or a config file, with **O(1) coverage evaluation**. One calendar-field extraction, then per-component integer tests ([spec.md §9](spec.md#9-evaluation-semantics)).
 
 ## What can DTRExp express that others can't?
 
@@ -63,7 +65,7 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 ### ISO 8601 (durations, intervals, repeating intervals) and ISO 8601-2:2019
 
-**Good at:** interchange of *concrete* times. `2018-03-01/P1M` is unambiguous and universally parseable. Repeating intervals (`R5/2018-03-01/P14M`) express linear anchored cadences — DTRExp's cadence component (§5.2) is deliberately isomorphic to them, so that subset round-trips.
+**Good at:** interchange of *concrete* times. `2018-03-01/P1M` is unambiguous and universally parseable. Repeating intervals (`R5/2018-03-01/P14M`) express linear anchored cadences — DTRExp's cadence component ([§5.2](spec.md#52-cadence--anchor-based-recurrence)) is deliberately isomorphic to them, so that subset round-trips.
 
 **Fails at:** selection. ISO 8601-1 has no way to say "last Sunday of April," "weekdays," "except July," or to combine rules; `R` only counts recurrences of one interval. ISO 8601-2:2019 (the extension) does add rule-based recurrences (an RRULE-alike) plus seasons and approximate dates, but it inherits RRULE's model and verbosity, and its real-world adoption is close to zero. You will not find a parser for it in your stack.
 

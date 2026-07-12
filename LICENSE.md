@@ -14,7 +14,7 @@ To keep implementation friction-free, the following materials are additionally a
 
 - `vectors.json` (the conformance test vectors), in its entirety;
 - the EBNF grammar productions in the specification documents;
-- the DTRExp expression examples and code examples in the specification documents.
+- the DTRExp examples and code examples in the specification documents.
 
 ```
 MIT License
