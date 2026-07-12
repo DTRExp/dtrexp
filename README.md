@@ -1,6 +1,6 @@
 # DTRExp
 
-**Date-Time Range & Recurrence Expression** — a compact string expression for describing *when*, evaluated by *coverage*. The name reads as "**DTR Expression**"; `dtrexp` is its package spelling.
+**Date-Time Range & Recurrence Expression** — a compact string expression for describing ***when***, evaluated by *coverage*. The name reads as "**DTR Expression**"; `dtrexp` is its package spelling.
 
 ```
 T0900:1800 E1:5                 Mon–Fri, 09:00–18:00
@@ -130,7 +130,7 @@ Implementations, each developed against the vectors: [`dtrexp-js`](https://githu
 
 ## Feedback
 
-This is a request for comments. Open an issue for anything ambiguous, missing, or over-engineered — ambiguities found now are grammar fixes; found later, they're breaking changes. Suggestions come in as issues rather than pull requests — see [CONTRIBUTING.md](CONTRIBUTING.md) for how that works and why.
+This is a **request for comments**. Open an issue for anything ambiguous, missing, or over-engineered — ambiguities found now are grammar fixes; found later, they're breaking changes. Suggestions come in as issues rather than pull requests — see [CONTRIBUTING.md](CONTRIBUTING.md) for how that works and why.
 
 ## License
 
