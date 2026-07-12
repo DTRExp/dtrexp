@@ -1,6 +1,6 @@
-# DTRExp — Draft 2 — Recurrence, cleanly
+# DTRExp — Recurrence, cleanly
 
-_Replaces the old `/duration/interval/repetition` tail. One question decides everything._
+_One question decides everything._
 
 ## The one question
 
@@ -9,7 +9,7 @@ _Replaces the old `/duration/interval/repetition` tail. One question decides eve
 - "Hours 0, 4, 8, 12, 16, 20" — same every day, forever. → **calendar-locked**. The calendar field itself tells you the answer.
 - "Every 14 months from March 2018" — hits 2018-03, 2019-05, 2020-07… the month **drifts** each year. → **anchor-based**. No calendar field can tell you; only elapsed time since a start date can.
 
-These are two different kinds of recurrence. The old spec forced both through one syntax — that's why it collapsed. Draft 2 gives each its own construct.
+These are two different kinds of recurrence; forcing both through one syntax is how recurrence grammars collapse. DTRExp gives each its own construct.
 
 ## Construct 1 — Stride `/interval[/duration]` (calendar-locked)
 
@@ -54,22 +54,8 @@ Components still just intersect, like everything else in DTRExp:
 | Expression | Meaning |
 | --- | --- |
 | `T0900:1200 20200106/10D` | 09:00–12:00, on every 10th day from 2020-01-06 |
-| `m0:19 H0/4` | first 20 minutes of every 4th hour (Einstein's nap) |
+| `m0:19 H0/4` | first 20 minutes of every 4th hour (da Vinci's sleep) |
 | `E1 20180301/14M` | Mondays that fall inside each 14-month recurrence window |
-
-## Migrating the old examples
-
-| Old (draft-1 / DTRExp) | Draft 2 |
-| --- | --- |
-| `M3/14/14/* Y2018:*` (every 14 months after 2018-03) | `20180301/14M` |
-| `m0:20 H00/1/4/*` (Einstein) | `m0:19 H0/4` |
-| `M3/1/2/*` (every 2nd month from March) | `M3/2` |
-| `D3:100/5/2/10:15` (recurrence indices) | **gone** — bound the cadence with a date range instead |
-
-## What died, and why
-
-- **The 3-part tail on selectors** (`/duration/interval/repetition`): duration+interval inside a parent is expandable to a plain range list at parse time (see `M1/5/2` above) — sugar, kept as the stride's block form. Across parents it's a cadence — moved to Construct 2.
-- **Recurrence indices** (`/*3;5` — "only the 3rd and 5th recurrence"): counting occurrences from an anchor *and* filtering by index; expressible as a date bound when finite; appeared in zero real examples.
 
 ## Cheat sheet
 

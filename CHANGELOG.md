@@ -134,3 +134,17 @@ Considered and refused: **out-of-domain overflow** (`M14` = February, `D40 M3` =
 | "a DTRExp should not be parsed" | "cannot generally be enumerated; evaluated by coverage" | it is parsed; it isn't expanded |
 | 4/6-digit date literals (`2015`, `201703`) | 8-digit minimum | removes `Y2015` vs `2015` ambiguity |
 | millisecond selector `S` | removed (`T` literals keep `.sss` precision) | no real use case |
+
+### Migrating the old examples
+
+| Old (draft-1 / DTRE) | Now |
+| --- | --- |
+| `M3/14/14/* Y2018:*` (every 14 months after 2018-03) | `20180301/14M` |
+| `m0:20 H00/1/4/*` (da Vinci's sleep) | `m0:19 H0/4` |
+| `M3/1/2/*` (every 2nd month from March) | `M3/2` |
+| `D3:100/5/2/10:15` (recurrence indices) | **gone** — bound the cadence with a date range instead |
+
+### What died, and why
+
+- **The 3-part tail on selectors** (`/duration/interval/repetition`): duration+interval inside a parent is expandable to a plain range list at parse time — sugar, kept as the stride's block form (see [recurrence.md](recurrence.md)). Across parents it's a cadence — moved to the anchored-cadence construct.
+- **Recurrence indices** (`/*3;5` — "only the 3rd and 5th recurrence"): counting occurrences from an anchor *and* filtering by index; expressible as a date bound when finite; appeared in zero real examples.
