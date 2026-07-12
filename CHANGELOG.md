@@ -1,8 +1,10 @@
 # Changes
 
+DTRExp has been in the works since 2017. Draft 1 — then under the name **DTRE** — is dated August 24, 2018; the format spent the years between in production notes and a shelved implementation. Draft 2 (2026) is a ground-up revision with one added discipline: five clean-room implementations, each built from the prose and vectors alone, plus the reference — and every divergence between them resolved as a spec fix and a test vector. Newest first.
+
 ## Changes from draft 2.7 (draft 2.8)
 
-Locked 2026-07-10. Vocabulary only — no grammar, evaluation, or vector change; the 2.7 vector suite is the 2.8 vector suite, byte for byte.
+Vocabulary only — no grammar, evaluation, or vector change; the 2.7 vector suite is the 2.8 vector suite, byte for byte.
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -10,7 +12,7 @@ Locked 2026-07-10. Vocabulary only — no grammar, evaluation, or vector change;
 
 ## Changes from draft 2.6 (draft 2.7)
 
-Locked 2026-07-10, from the fifth clean-room implementation's (dtrexp-java) journal — 21 entries, probed across all **six** codebases (five ports + reference). Ten behaviors pinned; two were owner doctrine calls; one probe exposed a crash no vector had ever reached.
+From the fifth clean-room implementation's (dtrexp-java) journal — 21 entries, probed across all **six** codebases (five ports + reference). Ten behaviors pinned; two were owner doctrine calls; one probe exposed a crash no vector had ever reached.
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -27,7 +29,7 @@ Locked 2026-07-10, from the fifth clean-room implementation's (dtrexp-java) jour
 
 ## Changes from draft 2.5 (draft 2.6)
 
-Locked 2026-07-10 (owner decision), closing the `Y` domain question the rs round surfaced: cold readers had split 3–2 on `Y0` and 2–3 on an upper bound, each implementation quietly inventing its own limits where the prose was silent.
+An owner decision, closing the `Y` domain question the rs round surfaced: cold readers had split 3–2 on `Y0` and 2–3 on an upper bound, each implementation quietly inventing its own limits where the prose was silent.
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -36,7 +38,7 @@ Locked 2026-07-10 (owner decision), closing the `Y` domain question the rs round
 
 ## Changes from draft 2.4 (draft 2.5)
 
-Locked 2026-07-10, from the fourth clean-room implementation's (dtrexp-rs) journal — 21 entries, 18 of which the 2.4 prose already decided (the round validated the spec). The three `[VECTOR-GAP]`s were probed across all five implementations; two are pinned below, one (`Y0` and the `Y` domain bounds — a live 3–2 split among cold readers) is deferred to the owner.
+From the fourth clean-room implementation's (dtrexp-rs) journal — 21 entries, 18 of which the 2.4 prose already decided (the round validated the spec). The three `[VECTOR-GAP]`s were probed across all five implementations; two are pinned below, one (`Y0` and the `Y` domain bounds — a live 3–2 split among cold readers) is deferred to the owner.
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -46,7 +48,7 @@ Locked 2026-07-10, from the fourth clean-room implementation's (dtrexp-rs) journ
 
 ## Changes from draft 2.3 (draft 2.4)
 
-Locked 2026-07-10, closing the round-3 triage (clean-room dtrexp-swift + the go/swift journals' prose findings). Two behavior decisions, two unanimous agreements pinned, and a new vector class.
+Closes the round-3 triage (clean-room dtrexp-swift + the go/swift journals' prose findings). Two behavior decisions, two unanimous agreements pinned, and a new vector class.
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -61,7 +63,7 @@ Locked 2026-07-10, closing the round-3 triage (clean-room dtrexp-swift + the go/
 
 ## Changes from draft 2.2 (draft 2.3)
 
-Locked 2026-07-09, from the second clean-room implementation's (dtrexp-go) one substantive finding: no vector exercised a cadence on a DST transition, and the three implementations had quietly built **three different models** there. §9.3 now decides it.
+From the second clean-room implementation's (dtrexp-go) one substantive finding: no vector exercised a cadence on a DST transition, and the three implementations had quietly built **three different models** there. §9.3 now decides it.
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -71,7 +73,7 @@ Locked 2026-07-09, from the second clean-room implementation's (dtrexp-go) one s
 
 ## Changes from draft 2.1 (draft 2.2)
 
-Locked 2026-07-09, from the findings of a **clean-room second implementation** (dtrexp-py, built from prose + vectors alone under an ambiguity-journal protocol). Its journal surfaced 28 underdetermined readings; 4 were live divergences — the reference and the clean-room implementation both passed the full vector suite while disagreeing on all four. Every fix below is vectored.
+From the findings of a **clean-room second implementation** (dtrexp-py, built from prose + vectors alone under an ambiguity-journal protocol). Its journal surfaced 28 underdetermined readings; 4 were live divergences — the reference and the clean-room implementation both passed the full vector suite while disagreeing on all four. Every fix below is vectored.
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -89,7 +91,7 @@ Locked 2026-07-09, from the findings of a **clean-room second implementation** (
 
 ## Changes from draft 2 (draft 2.1)
 
-Locked 2026-07-09 during implementation review. Breaking against draft 2, which nobody consumed — no compatibility owed.
+Adopted during implementation review. Breaking against draft 2, which nobody consumed — no compatibility owed.
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -103,7 +105,7 @@ Locked 2026-07-09 during implementation review. Breaking against draft 2, which 
 | month/year cadence durations checked only by the reference parser | codified: `/nM`, `/nY` durations require month/year periods; rejection vector + `H`/`m`-period coverage vectors added | the vectors are the contract, not the parser |
 | §9.3 silent on cadence-anchor disambiguation | explicit: an anchor at a repeated local time is the **earlier** occurrence; in a gap it resolves **forward** (Temporal `compatible`) | the reference implementation resolved it by the sign of the zone's offset — Berlin got later, New York earlier; mutation testing flushed it out |
 
-### Review fixes folded into 2.1 (independent model review, 2026-07-09)
+### Review fixes folded into 2.1 (independent review)
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -118,7 +120,9 @@ Locked 2026-07-09 during implementation review. Breaking against draft 2, which 
 
 Considered and refused: **out-of-domain overflow** (`M14` = February, `D40 M3` = April 9). It would break the existence rule (`D29 M2` = leap day only), silently change `M5 Q2` (May → August), and stop catching typos — fatal for the access-control use case. Wrap ranges + date-literal bounds cover both cross-boundary cases.
 
-## Changes from draft 1 / DTRExp (as of draft 2 — ranges have since moved to `:`, see above)
+## Changes from draft 1 / DTRE (August 24, 2018)
+
+_Stated as of draft 2; ranges have since moved to `:`, see above._
 
 | Was | Now | Why |
 | --- | --- | --- |
