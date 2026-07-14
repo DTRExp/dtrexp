@@ -1,6 +1,6 @@
 # DTRExp — Conformance Vectors
 
-`vectors.json` is the conformance contract of the DTRExp specification. The prose in [spec.md](spec.md) explains the format; whether an implementation conforms is decided by this file alone. If the prose and the vectors ever disagree; the vectors win and the prose gets fixed.
+`vectors.json` is the conformance contract of the DTRExp specification. The prose in [spec.md](spec.md) explains the format; whether an implementation conforms is decided by this file alone. If the prose and the vectors ever disagree, the vectors win and the prose gets fixed.
 
 ## What conforming means
 
@@ -42,10 +42,10 @@ Each group is one expression evaluated at several instants:
 }
 ```
 
-- *id* `String` — unique name of the group; use it in your test output so a failure is identifiable.
-- *expression* `String` — the DTRExp source to parse.
-- *tz* `String` — the IANA **evaluation zone**. Most groups run in `UTC`; the DST groups run in `Europe/Berlin`.
-- *cases* `Object` — instant → expected boolean. Instants are absolute **ISO 8601 UTC** timestamps; parse them as instants, then evaluate in *tz*. In other words, `"2024-03-31T01:30:00Z": true` with `"tz": "Europe/Berlin"` asks about 03:30 Berlin local time.
+- *id* `String`: unique name of the group; use it in your test output so a failure is identifiable.
+- *expression* `String`: the DTRExp source to parse.
+- *tz* `String`: the IANA **evaluation zone**. Most groups run in `UTC`; the DST groups run in `Europe/Berlin`.
+- *cases* `Object`: instant → expected boolean. Instants are absolute **ISO 8601 UTC** timestamps; parse them as instants, then evaluate in *tz*. In other words, `"2024-03-31T01:30:00Z": true` with `"tz": "Europe/Berlin"` asks about 03:30 Berlin local time.
 
 ### `invalid`
 
@@ -53,7 +53,7 @@ Each group is one expression evaluated at several instants:
 { "expression": "Y*/3", "reason": "anchorless stride" }
 ```
 
-*reason* is for the human reading a failed test; implementations only need to reject. The spec does not pin error messages or codes — only that parsing fails.
+*reason* is for the human reading a failed test; implementations only need to reject. The spec does not pin error messages or codes, only that parsing fails.
 
 ### `warnings` and `quiet`
 
@@ -62,7 +62,7 @@ Each group is one expression evaluated at several instants:
 { "expression": "D366 Y2020", "note": "leap year 2020 has a day 366" }
 ```
 
-A `warnings` expression parses successfully **and** reports at least one warning ([spec §9.1](spec.md#91-the-existence-rule)). A `quiet` expression parses with none; each carries a *note* explaining why warning on it would be wrong. Warning texts are not pinned — only the fact of warning.
+A `warnings` expression parses successfully **and** reports at least one warning ([spec §9.1](spec.md#91-the-existence-rule)). A `quiet` expression parses with none; each carries a *note* explaining why warning on it would be wrong. Warning texts are not pinned, only the fact of warning.
 
 ## Wiring it into an implementation
 
@@ -70,11 +70,11 @@ A `warnings` expression parses successfully **and** reports at least one warning
 2. Drive all four sections from one runner. This is a few dozen lines in any language; every existing implementation does it this way.
 3. Report failures by group *id* / expression, not by index.
 
-Do not hand-pick "the relevant" vectors. The suite is deliberately heavy on the corners that break date libraries: February 29 across 2000 / 2024 / **2100**, `W53` existence per ISO week-year, the Berlin spring-forward gap and fall-back overlap, and constrain arithmetic on month-end anchors. If your implementation fails exactly one strange-looking vector; that vector is probably the one doing its job.
+Do not hand-pick "the relevant" vectors. The suite is deliberately heavy on the corners that break date libraries: February 29 across 2000 / 2024 / **2100**, `W53` existence per ISO week-year, the Berlin spring-forward gap and fall-back overlap, and constrain arithmetic on month-end anchors. If your implementation fails exactly one strange-looking vector, that vector is probably the one doing its job.
 
 ## When your implementation disagrees
 
-First re-read the relevant spec section; the vectors have been validated by six independent implementations, so the odds favor the vectors. If you still believe a vector is wrong, [open an issue](https://github.com/DTRExp/dtrexp/issues) — a disputed vector is a spec bug either way: either the behavior is wrong, or the prose that led you elsewhere is.
+First re-read the relevant spec section; the vectors have been validated by six independent implementations, so the odds favor the vectors. If you still believe a vector is wrong, [open an issue](https://github.com/DTRExp/dtrexp/issues); a disputed vector is a spec bug either way: either the behavior is wrong, or the prose that led you elsewhere is.
 
 ## License
 
