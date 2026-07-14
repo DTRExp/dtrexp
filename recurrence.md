@@ -6,8 +6,8 @@ _One question decides everything._
 
 > **Does the pattern look the same in every parent cycle?**
 
-- "Hours 0, 4, 8, 12, 16, 20" — same every day, forever. → **calendar-locked**. The calendar field itself tells you the answer.
-- "Every 14 months from March 2018" — hits 2018-03, 2019-05, 2020-07… the month **drifts** each year. → **anchor-based**. No calendar field can tell you; only elapsed time since a start date can.
+- "Hours 0, 4, 8, 12, 16, 20": same every day, forever. → **calendar-locked**. The calendar field itself tells you the answer.
+- "Every 14 months from March 2018": hits 2018-03, 2019-05, 2020-07… the month **drifts** each year. → **anchor-based**. No calendar field can tell you; only elapsed time since a start date can.
 
 These are two different kinds of recurrence; forcing both through one syntax is how recurrence grammars collapse. DTRExp gives each its own construct.
 
@@ -24,12 +24,12 @@ Attach `/<interval>[/<duration>]` to a normal selector: _from the range start, e
 
 Rules:
 
-- **Legal only when it fits inside the parent cycle** (`n` ≤ parent's span). `M3/14` is a **syntax error** — 14 months can't repeat inside one year; that's a cadence (below).
-- **The range start is the anchor.** `Y2020:2040/3` anchors at 2020. Bare `Y*/3` is a syntax error — no start, no anchor. (This kills the old "every 3 years… from when?" / year-0 problem by construction.)
-- The first number after `/` is always the **interval**; the optional second is the **duration** — the same order as cadences (`20180301/14M/2M`). `1 ≤ duration < interval`.
+- **Legal only when it fits inside the parent cycle** (`n` ≤ parent's span). `M3/14` is a **syntax error**: 14 months can't repeat inside one year; that's a cadence (below).
+- **The range start is the anchor.** `Y2020:2040/3` anchors at 2020. Bare `Y*/3` is a syntax error: no start, no anchor. (This kills the old "every 3 years… from when?" / year-0 problem by construction.)
+- The first number after `/` is always the **interval**; the optional second is the **duration**, the same order as cadences (`20180301/14M/2M`). `1 ≤ duration < interval`.
 - Evaluation is one modulo: `(value − start) % interval < duration`. No dates, no iteration.
 
-Stride is pure convenience — `H0/4` and `H0,4,8,12,16,20` are the same expression. It adds terseness, not power.
+Stride is pure convenience; `H0/4` and `H0,4,8,12,16,20` are the same expression. It adds terseness, not power.
 
 ## Construct 2 — Anchored cadence `<date>/<n><unit>[/<n><unit>]` (anchor-based)
 
@@ -43,9 +43,9 @@ A component that **starts with a date literal**: _from this date, repeat every `
 
 Rules:
 
-- The anchor date is **required and part of the literal** — a cadence without an anchor cannot be written, so it can never be ambiguous.
+- The anchor date is **required and part of the literal**; a cadence without an anchor cannot be written, so it can never be ambiguous.
 - Evaluation is still O(1): `elapsed = unitsBetween(anchor, instant)`; covered iff `elapsed % period < duration`.
-- This is the thing cron famously **cannot** express ("every 10 days") and RRULE expresses only via `DTSTART` + `INTERVAL`. It maps 1:1 to ISO 8601 repeating intervals (`R/2018-03-01/P14M`) — so `toRRule()` / ISO interop falls out for free.
+- This is the thing cron famously **cannot** express ("every 10 days") and RRULE expresses only via `DTSTART` + `INTERVAL`. It maps 1:1 to ISO 8601 repeating intervals (`R/2018-03-01/P14M`), so `toRRule()` / ISO interop falls out for free.
 
 ## Composing them
 

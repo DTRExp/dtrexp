@@ -2,7 +2,7 @@
 
 **Draft 2.8** · Status: RFC · 2026-07-10 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
 
-A DTRExp (read: "**DTR expression**") is a compact string expression denoting a — possibly infinite — set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
+A DTRExp (read: "**DTR expression**") is a compact string expression denoting a (possibly infinite) set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
 
 ```
 T0900:1800 E1:5          business hours
@@ -22,8 +22,8 @@ dtrexp      =  expression ∪ expression ∪ …        (via |)
 ```
 
 - Components may appear in any order; each designator may appear **at most once** per expression. Canonical (recommended) writing order is smallest unit first: `T… E… D… W… M… Q… Y… <bounds>`.
-- Whitespace between components is optional but recommended. Whitespace is the ASCII **space** only, in runs of any length — permitted between components, around `|`, and at either end of the expression (`M3|M5` and ` M3 | M5 ` are both valid). Tabs and every other whitespace character are syntax errors.
-- Expressions are **time-zone agnostic**. The time zone is a parameter of *evaluation* — an IANA time-zone identifier (`"Europe/Berlin"`) — never part of the expression. **Default: `UTC`**, under which no DST behavior exists at all; the local-time semantics of [§9.3](#93-dst-and-local-time) apply only when the caller asks for a zone that has them.
+- Whitespace between components is optional but recommended. Whitespace is the ASCII **space** only, in runs of any length: permitted between components, around `|`, and at either end of the expression (`M3|M5` and ` M3 | M5 ` are both valid). Tabs and every other whitespace character are syntax errors.
+- Expressions are **time-zone agnostic**. The time zone is a parameter of *evaluation* (an IANA time-zone identifier, `"Europe/Berlin"`), never part of the expression. **Default: `UTC`**, under which no DST behavior exists at all; the local-time semantics of [§9.3](#93-dst-and-local-time) apply only when the caller asks for a zone that has them.
 - All ranges over **discrete calendar units** (days, months, …) are **inclusive** on both ends: `D1:15` is exactly the first 15 days. Only the continuous time-of-day component `T` uses half-open ranges: `T0900:1200` covers 09:00:00.000 up to but not including 12:00.
 
 ## 2. Designators
@@ -40,14 +40,14 @@ dtrexp      =  expression ∪ expression ∪ …        (via |)
 | `H` | hour of day | 0–23 | day |
 | `m` | minute of hour | 0–59 | `H` |
 | `s` | second of minute | 0–59 | `m` |
-| *(none)* | date literal | `YYYYMMDD[Thhmm[ss]]` | absolute — bounds ([§6](#6-absolute-bounds--date-literals)) and cadence anchors ([§5.2](#52-cadence--anchor-based-recurrence)) |
+| *(none)* | date literal | `YYYYMMDD[Thhmm[ss]]` | absolute: bounds ([§6](#6-absolute-bounds--date-literals)) and cadence anchors ([§5.2](#52-cadence--anchor-based-recurrence)) |
 
 Notes:
 
-- A designator is scoped **only by the units its table row lists** — never by whatever coarser selector happens to be present. `D`'s scope is the nearest of `M`/`Q`/`Y` in the expression, else `M`: `D40 Q2` = 40th day of Q2; `D-1 Y*` = last day of each year; plain `D1` = day 1 of every month. "Nearest" is by **granularity**, never by textual position — an expression is an unordered intersection ([§1](#1-model)), so `Q2 D40` and `D40 Q2` are the same expression, and in `Q2 D40 M1` the `M` wins scope, making `D40` out of domain: a syntax error.
-- `W` scopes nothing. `D-1 W*` is the last day of the month (intersected with every week) — *not* the last day of a week; that's `E7`.
-- `M` and `Q` are absolute within the year, never rescoped: `M5 Q2` is May (May ∩ Q2), and `M-1 Q1` is December ∩ Q1 = ∅ — statically unsatisfiable, flagged per [§9.1](#91-the-existence-rule).
-- When `W` is present, `Y` is interpreted as the **ISO week-year** for that expression (Dec 29 can be W1 of the next week-year; the pairing must be consistent). Only the `Y` selector's own test uses the week-year — `M` and `Q` always test calendar fields, so on 2025-12-29 the expression `M12 W1 Y2026` is satisfied (calendar December, week 1 of week-year 2026).
+- A designator is scoped **only by the units its table row lists**; never by whatever coarser selector happens to be present. `D`'s scope is the nearest of `M`/`Q`/`Y` in the expression, else `M`: `D40 Q2` = 40th day of Q2; `D-1 Y*` = last day of each year; plain `D1` = day 1 of every month. "Nearest" is by **granularity**, never by textual position; an expression is an unordered intersection ([§1](#1-model)), so `Q2 D40` and `D40 Q2` are the same expression, and in `Q2 D40 M1` the `M` wins scope, making `D40` out of domain: a syntax error.
+- `W` scopes nothing. `D-1 W*` is the last day of the month (intersected with every week), *not* the last day of a week; that's `E7`.
+- `M` and `Q` are absolute within the year, never rescoped: `M5 Q2` is May (May ∩ Q2), and `M-1 Q1` is December ∩ Q1 = ∅, statically unsatisfiable, flagged per [§9.1](#91-the-existence-rule).
+- When `W` is present, `Y` is interpreted as the **ISO week-year** for that expression (Dec 29 can be W1 of the next week-year; the pairing must be consistent). Only the `Y` selector's own test uses the week-year; `M` and `Q` always test calendar fields, so on 2025-12-29 the expression `M12 W1 Y2026` is satisfied (calendar December, week 1 of week-year 2026).
 - Milliseconds exist only as `T` literal precision (`T093015.250:…`); there is no millisecond selector.
 - `T` and `H`/`m`/`s` can coexist (they intersect like everything else), but pick one style: `T` for clock ranges, `H`/`m`/`s` for unit patterns and strides.
 
@@ -58,39 +58,39 @@ Notes:
 | Form | Example | Meaning |
 | --- | --- | --- |
 | value | `D5` | day 5 |
-| negative value | `D-1` | 1st from the end of the parent's actual domain (last day — 28/29/30/31 as the month dictates; leap years resolve themselves) |
+| negative value | `D-1` | 1st from the end of the parent's actual domain (last day: 28/29/30/31 as the month dictates; leap years resolve themselves) |
 | range | `M3:7` | months 3 through 7, inclusive |
-| open range | `D-7:*` | 7th-from-last through end (last 7 days); `*` = domain edge — [§3.1](#31-domain-scope-and-) |
+| open range | `D-7:*` | 7th-from-last through end (last 7 days); `*` = domain edge ([§3.1](#31-domain-scope-and-)) |
 | wrap range | `M11:2` | November through February, each year: start → domain edge, plus domain start → end |
 | list | `M1,3,7:9` | union of values/ranges |
 | all | `M*` | entire domain (explicit "every") |
 | exclusion | `M!5,7:9` | domain **minus** the listed set |
-| stride | `M1/3`, `M1/5/2` | recurrence — [§5.1](#51-stride--calendar-locked-recurrence) |
+| stride | `M1/3`, `M1/5/2` | recurrence ([§5.1](#51-stride--calendar-locked-recurrence)) |
 | ordinal (E only) | `E7#2`, `E7#-1` | nth / nth-from-last occurrence within the scope |
 
 Rules:
 
 - **Exclusion `!` appears only immediately after the designator** and negates the whole value list. That is the *only* position. "Months 1–10 except 5" is written explicitly: `M1:4,6:10`.
-- A component is *either* an exclusion *or* carries a stride — never both.
-- A range whose start exceeds its end **wraps** within the parent instance (`M11:2`, `H22:6`, `D25:5`) — same model as `T`'s midnight wrap ([§4](#4-time-of-day--t)). `Y` is the one designator with no parent cycle to wrap around: years are **absolute and non-cyclic** (wrap is a cyclic domain repeating inside a parent instance — months within a year, hours within a day — and `Y` sits inside nothing), so `Y2030:2020` is an error.
-- Wrapping is decided **syntactically, on literal non-negative endpoints only**. On 0-based domains a literal `0` is an ordinary endpoint and wraps like any other: `H22:0` covers hours 22, 23 and 0 — the hour analogue of `T2200:0100`. A range containing a negative or `*` endpoint never wraps: it resolves per parent instance ([§9.1](#91-the-existence-rule)) and covers nothing in any instance where the resolved start exceeds the resolved end. `D-1:5` is therefore empty in every month — and when emptiness is statically certain, it draws the [§9.1](#91-the-existence-rule) unsatisfiability warning.
-- Negative values are meaningless on `Y` (years are absolute, not counted back from a parent instance's edge — [§3.1](#31-domain-scope-and-)) and are rejected.
-- A literal `0` is **out of domain on the 1-based designators** and a syntax error there — `M0`, `D0`, `Q0`, `W0` name no month, day, quarter or week — while on the **0-based** `H`/`m`/`s` it is an ordinary value: `H0` is midnight's hour, `m0` the first minute. A **signed zero is never a value**: the `-` requires a nonzero integer, so `H-0` and `M-0` are syntax errors everywhere — `H0` is the only spelling of hour 0.
-- Negative values are domain-checked **symmetrically** at parse time: `-N … -1`, where *N* is the domain's maximum **size** — the count of its values (31 for month-scoped `D`, 24 for `H`; on 0-based domains this is not the same number as the largest value). `D-31` parses — and covers nothing in months without 31 days ([§9.1](#91-the-existence-rule)), the mirror of `D31` in April — while `D-32` is out of domain, a syntax error. At evaluation a negative `v` counts back from the parent instance's actual edge, resolving to `maxValue + 1 + v` where *maxValue* is the instance's **largest value**: `D-1` in Feb 2024 is 29 + 1 + (−1) = 29; on `H` it is 23 + 1 + v, so `H-1` is hour 23 and `H-24` is hour 0.
-- `*` as a bare list item is rejected (`M1,*`): a list containing the whole domain *is* the whole domain — write `M*`.
-- Strides attach to a single value or a single range, not to lists; the stride's start must be a **non-negative** value (an end-relative anchor like `D-10:*/2` would shift per parent instance — write the positive equivalent). Only the *start* is so restricted: a negative **end** merely clips per parent instance while the phase stays anchored, so `D2:-1/5` is valid. Wrap ranges take no stride.
+- A component is *either* an exclusion *or* carries a stride, never both.
+- A range whose start exceeds its end **wraps** within the parent instance (`M11:2`, `H22:6`, `D25:5`), same model as `T`'s midnight wrap ([§4](#4-time-of-day--t)). `Y` is the one designator with no parent cycle to wrap around: years are **absolute and non-cyclic** (wrap is a cyclic domain repeating inside a parent instance — months within a year, hours within a day — and `Y` sits inside nothing), so `Y2030:2020` is an error.
+- Wrapping is decided **syntactically, on literal non-negative endpoints only**. On 0-based domains a literal `0` is an ordinary endpoint and wraps like any other: `H22:0` covers hours 22, 23 and 0, the hour analogue of `T2200:0100`. A range containing a negative or `*` endpoint never wraps: it resolves per parent instance ([§9.1](#91-the-existence-rule)) and covers nothing in any instance where the resolved start exceeds the resolved end. `D-1:5` is therefore empty in every month, and when emptiness is statically certain, it draws the [§9.1](#91-the-existence-rule) unsatisfiability warning.
+- Negative values are meaningless on `Y` (years are absolute, not counted back from a parent instance's edge, [§3.1](#31-domain-scope-and-)) and are rejected.
+- A literal `0` is **out of domain on the 1-based designators** and a syntax error there (`M0`, `D0`, `Q0`, `W0` name no month, day, quarter or week) while on the **0-based** `H`/`m`/`s` it is an ordinary value: `H0` is midnight's hour, `m0` the first minute. A **signed zero is never a value**: the `-` requires a nonzero integer, so `H-0` and `M-0` are syntax errors everywhere; `H0` is the only spelling of hour 0.
+- Negative values are domain-checked **symmetrically** at parse time: `-N … -1`, where *N* is the domain's maximum **size**, the count of its values (31 for month-scoped `D`, 24 for `H`; on 0-based domains this is not the same number as the largest value). `D-31` parses — and covers nothing in months without 31 days ([§9.1](#91-the-existence-rule)), the mirror of `D31` in April — while `D-32` is out of domain, a syntax error. At evaluation a negative `v` counts back from the parent instance's actual edge, resolving to `maxValue + 1 + v` where *maxValue* is the instance's **largest value**: `D-1` in Feb 2024 is 29 + 1 + (−1) = 29; on `H` it is 23 + 1 + v, so `H-1` is hour 23 and `H-24` is hour 0.
+- `*` as a bare list item is rejected (`M1,*`): a list containing the whole domain *is* the whole domain; write `M*`.
+- Strides attach to a single value or a single range, not to lists; the stride's start must be a **non-negative** value (an end-relative anchor like `D-10:*/2` would shift per parent instance; write the positive equivalent). Only the *start* is so restricted: a negative **end** merely clips per parent instance while the phase stays anchored, so `D2:-1/5` is valid. Wrap ranges take no stride.
 - `#` takes a single ordinal in `-5…-1, 1…5`. Multiple ordinals ("1st and 3rd Friday") use union: `E5#1 | E5#3`. The base value may itself be negative; it resolves against `E`'s fixed domain first, so `E-1#2` ≡ `E7#2` (the second Sunday).
-- Omitted coarser components default to "every": `M3` alone ≡ `M3` of every year. Writing `Y*` is legal — and redundant **unless it rescopes a finer component**: `D` and `E#` bind to the nearest coarser component *present* ([§2](#2-designators)), so `D-7:*` alone is the last 7 days of each **month**, while `D-7:* Y*` is the last 7 days of each **year**. Deleting a coarse `*` component is safe only when nothing takes its scope from it.
+- Omitted coarser components default to "every": `M3` alone ≡ `M3` of every year. Writing `Y*` is legal, and redundant **unless it rescopes a finer component**: `D` and `E#` bind to the nearest coarser component *present* ([§2](#2-designators)), so `D-7:*` alone is the last 7 days of each **month**, while `D-7:* Y*` is the last 7 days of each **year**. Deleting a coarse `*` component is safe only when nothing takes its scope from it.
 
 ### 3.1 Domain, scope, and `*`
 
 Two ideas decide what every component value means; they are easy to conflate.
 
-**Domain** — the set of values a designator can take. Some are fixed (`M` is 1–12, `H` is 0–23, `Y` is 1–9999), some depend on the calendar (`D` is 1–31 / 1–92 / 1–366).
+**Domain**: the set of values a designator can take. Some are fixed (`M` is 1–12, `H` is 0–23, `Y` is 1–9999), some depend on the calendar (`D` is 1–31 / 1–92 / 1–366).
 
-**Scope** — *which* instance of the parent the domain is measured against, per the [§2](#2-designators) table. `D`'s domain is the days of one month by default; `D40 Q2` measures days against the quarter, so the domain becomes 1–92.
+**Scope**: *which* instance of the parent the domain is measured against, per the [§2](#2-designators) table. `D`'s domain is the days of one month by default; `D40 Q2` measures days against the quarter, so the domain becomes 1–92.
 
-`*` is not a wildcard and never means "now". It denotes the **edge of the domain in force**, resolved per parent instance — it moves with the calendar, never with the clock. Standalone `M*` (the whole domain) and `M3:*` (from 3 to the domain's edge) are the same `*` doing the same job:
+`*` is not a wildcard and never means "now". It denotes the **edge of the domain in force**, resolved per parent instance; it moves with the calendar, never with the clock. Standalone `M*` (the whole domain) and `M3:*` (from 3 to the domain's edge) are the same `*` doing the same job:
 
 | Expression | Scope | `*` resolves to | Covers |
 | --- | --- | --- | --- |
@@ -101,23 +101,23 @@ Two ideas decide what every component value means; they are easy to conflate.
 | `Y2020:*` | *(none)* | 9999 | 2020 and every later year |
 | `Y*:2020` | *(none)* | 1 | 2020 and every earlier year |
 
-`Y`'s edges are the format's own limits — years 1 and 9999, the 4-digit ISO range the 8-digit `YYYYMMDD` date-literal grammar already commits to ([§6](#6-absolute-bounds--date-literals)) — so `Y2020:*` reads "2020 through the end of the representable timeline"; still the same single meaning of `*`, resolving to the domain edge like everywhere else.
+`Y`'s edges are the format's own limits: years 1 and 9999, the 4-digit ISO range the 8-digit `YYYYMMDD` date-literal grammar already commits to ([§6](#6-absolute-bounds--date-literals)). So `Y2020:*` reads "2020 through the end of the representable timeline"; still the same single meaning of `*`, resolving to the domain edge like everywhere else.
 
-A range may put `*` at **both** ends: `M*:*` is accepted, each `*` independently resolving to its edge, and means exactly `M*` — which is the canonical spelling. (Bounds are the exception: an undesignated `*:*` is a syntax error — [§6](#6-absolute-bounds--date-literals).)
+A range may put `*` at **both** ends: `M*:*` is accepted, each `*` independently resolving to its edge, and means exactly `M*`, which is the canonical spelling. (Bounds are the exception: an undesignated `*:*` is a syntax error, [§6](#6-absolute-bounds--date-literals).)
 
-**Negative anchors have constant length; positive ones do not.** A negative start counts back from the edge, so its distance to the edge never varies: `D-7:*` is *always* the last 7 days (Feb 23–29 · Mar 25–31), while `D25:*` is 4–7 days depending on the month. `D-7` alone is a single day — the 7th from the end; the `:*` is what makes it a range. This is also why strides forbid end-relative starts ([§3](#3-component-values), Rules): `D-10:*/2` would shift phase in every month of a different length.
+**Negative anchors have constant length; positive ones do not.** A negative start counts back from the edge, so its distance to the edge never varies: `D-7:*` is *always* the last 7 days (Feb 23–29 · Mar 25–31), while `D25:*` is 4–7 days depending on the month. `D-7` alone is a single day: the 7th from the end; the `:*` is what makes it a range. This is also why strides forbid end-relative starts ([§3](#3-component-values), Rules): `D-10:*/2` would shift phase in every month of a different length.
 
 ## 4. Time of day — `T`
 
-`Thhmm[ss[.sss]]:hhmm[ss[.sss]]`, half-open `[start, end)`. Lists allowed: `T0900:1200,1300:1800` (business hours minus lunch). A single value `T12` means the implied unit interval `[12:00, 13:00)`; `T1230` means `[12:30, 12:31)` — the unit is the literal's precision, so `T093015` means `[09:30:15, 09:30:16)` and `T093015.250` one millisecond. In a **range**, an endpoint resolves to its literal's span-**start** instant whatever its precision: `T0900:12` ends at 12:00, not 13:00 — only [§6](#6-absolute-bounds--date-literals) bounds give a coarse endpoint its full span. A range with **equal resolved endpoints** (`T0900:0900`, and by the rule above `T12:1200` too) is a syntax error: half-open, it would cover nothing — typo-shaped input fails loudly.
+`Thhmm[ss[.sss]]:hhmm[ss[.sss]]`, half-open `[start, end)`. Lists allowed: `T0900:1200,1300:1800` (business hours minus lunch). A single value `T12` means the implied unit interval `[12:00, 13:00)`; `T1230` means `[12:30, 12:31)`; the unit is the literal's precision, so `T093015` means `[09:30:15, 09:30:16)` and `T093015.250` one millisecond. In a **range**, an endpoint resolves to its literal's span-**start** instant whatever its precision: `T0900:12` ends at 12:00, not 13:00; only [§6](#6-absolute-bounds--date-literals) bounds give a coarse endpoint its full span. A range with **equal resolved endpoints** (`T0900:0900`, and by the rule above `T12:1200` too) is a syntax error: half-open, it would cover nothing; typo-shaped input fails loudly.
 
-`T` takes **only values, ranges and lists** — no `*`, no exclusion `!`, no stride, no ordinal (`T0900:*`, `T!0900:1200` and `T0900:1800/2` are all syntax errors). A day-complement is written explicitly: not `T!0900:1200` but `T0000:0900,1200:2400`.
+`T` takes **only values, ranges and lists**: no `*`, no exclusion `!`, no stride, no ordinal (`T0900:*`, `T!0900:1200` and `T0900:1800/2` are all syntax errors). A day-complement is written explicitly: not `T!0900:1200` but `T0000:0900,1200:2400`.
 
 **Midnight wrap:** `T2200:0600` is legal and wraps *within each covered day*: ≡ `T0000:0600,2200:2400`. It does not spill into the next day.
 
-Gotcha: because the wrap stays within the day, `T2200:0600 E5` means Friday 00:00–06:00 **and** Friday 22:00–24:00 — *not* "Friday night into Saturday morning." For the latter, write the intent: `T2200:2400 E5 | T0000:0600 E6`.
+Gotcha: because the wrap stays within the day, `T2200:0600 E5` means Friday 00:00–06:00 **and** Friday 22:00–24:00, *not* "Friday night into Saturday morning." For the latter, write the intent: `T2200:2400 E5 | T0000:0600 E6`.
 
-**Hour 24:** midnight-as-an-end is written `2400` — valid **only** as the exact 4-digit token in range-end position. `T0000:2400` is the whole day; "22:00 to midnight" is `T2200:2400`. No other spelling exists: the 2-digit `T22:24` and `T2300:24`, the seconds-precision `T0000:240000`, and `2400` as a range *start* are all syntax errors. Hour 24 is not a value, only an edge — one token, one position.
+**Hour 24:** midnight-as-an-end is written `2400`, valid **only** as the exact 4-digit token in range-end position. `T0000:2400` is the whole day; "22:00 to midnight" is `T2200:2400`. No other spelling exists: the 2-digit `T22:24` and `T2300:24`, the seconds-precision `T0000:240000`, and `2400` as a range *start* are all syntax errors. Hour 24 is not a value, only an edge: one token, one position.
 
 ## 5. Recurrence
 
@@ -129,8 +129,8 @@ Two constructs, split by one question: **does the pattern look identical in ever
 
 | Expression | Covered |
 | --- | --- |
-| `H0/4` | hours 0, 4, 8, 12, 16, 20 — every day |
-| `M1/3` | Jan, Apr, Jul, Oct — every year |
+| `H0/4` | hours 0, 4, 8, 12, 16, 20; every day |
+| `M1/3` | Jan, Apr, Jul, Oct; every year |
 | `M1/5/2` | Jan–Feb, Jun–Jul, Nov–Dec (2-month block every 5) |
 | `M1:6/2` | Jan, Mar, May (stride stops at June) |
 | `Y2020:2040/3` | 2020, 2023, … 2038 |
@@ -138,29 +138,29 @@ Two constructs, split by one question: **does the pattern look identical in ever
 
 Validity:
 
-- `2 ≤ interval ≤` parent-domain size (its **maximum**, for variable domains: 31/92/366 for `D` by scope, 53 for `W`). Larger patterns ("every 14 months") **must** use a cadence — a stride cannot drift. `Y` has no parent cycle to fit inside and therefore **no interval ceiling**: `Y2020:*/100` is valid.
-- `1 ≤ duration < interval` (equal would be continuous coverage — write a plain range instead).
+- `2 ≤ interval ≤` parent-domain size (its **maximum**, for variable domains: 31/92/366 for `D` by scope, 53 for `W`). Larger patterns ("every 14 months") **must** use a cadence; a stride cannot drift. `Y` has no parent cycle to fit inside and therefore **no interval ceiling**: `Y2020:*/100` is valid.
+- `1 ≤ duration < interval` (equal would be continuous coverage; write a plain range instead).
 - The **range start is the anchor** and must be explicit: `Y*/3` is a syntax error (every 3rd year *from when?*). This kills the epoch problem at the grammar level.
 
 The first number after `/` is **always the interval**; the optional second is the duration. (Same order as cadences.) A stride is pure sugar: `H0/4` ≡ `H0,4,8,12,16,20`.
 
 ### 5.2 Cadence — anchor-based recurrence
 
-`<date>/<n><unit>[/<n><unit>]` — a component that **starts with a date literal**: from this anchor, repeat every *period*, covering *duration* each time (default: **1 of the period's unit** — `…/14M` covers 1 month per recurrence, `…/10D` covers 1 day). Period/duration units: `Y M W D H m`.
+`<date>/<n><unit>[/<n><unit>]`, a component that **starts with a date literal**: from this anchor, repeat every *period*, covering *duration* each time (default: **1 of the period's unit**; `…/14M` covers 1 month per recurrence, `…/10D` covers 1 day). Period/duration units: `Y M W D H m`.
 
 | Expression | Covered |
 | --- | --- |
-| `20180301/14M` | 2018-03, 2019-05, 2020-07, … (month drifts — no calendar field can express this) |
+| `20180301/14M` | 2018-03, 2019-05, 2020-07, … (month drifts; no calendar field can express this) |
 | `20200106/10D` | Jan 6, 16, 26, Feb 5, … (the thing cron cannot say) |
 | `20200106/10D/3D` | Jan 6–8, 16–18, 26–28, … (3 on, 7 off) |
 | `20200106/2W` | every other week from a Monday (biweekly) |
 
 Validity:
 
-- The anchor is part of the literal — an anchorless cadence cannot be written.
-- The anchor must be a **real calendar date** — `20230229/1Y` is rejected outright.
+- The anchor is part of the literal; an anchorless cadence cannot be written.
+- The anchor must be a **real calendar date**: `20230229/1Y` is rejected outright.
 - Month/year periods use **constrain** overflow arithmetic ([§9.2](#92-cadence-overflow--constrain-never-skip)): `20240131/3M/1D` covers Jan 31, Apr 30 (constrained), Jul 31, Oct 31.
-- duration < period, compared conservatively with **fixed unit lengths**: max length (duration side) Y = 366 d · M = 31 d · W = 7 d · D = 1 d; min length (period side) Y = 365 d · M = 28 d · W = 7 d · D = 1 d; `H`/`m` exact. The check is `duration × max(durationUnit) < period × min(periodUnit)`; same-unit comparisons are exact. The conservatism is deliberate: `20240101/2M/58D` is rejected (58 ≥ 2 × 28) even though no real pair of consecutive months is shorter than 59 days. Consequence: a period of exactly 1 unit (`/1M`, `/1D`) requires an **explicit smaller-unit duration** (`/1M/1D`) — the default would equal the period, and continuous coverage is a bound's job, not a cadence's.
+- duration < period, compared conservatively with **fixed unit lengths**: max length (duration side) Y = 366 d · M = 31 d · W = 7 d · D = 1 d; min length (period side) Y = 365 d · M = 28 d · W = 7 d · D = 1 d; `H`/`m` exact. The check is `duration × max(durationUnit) < period × min(periodUnit)`; same-unit comparisons are exact. The conservatism is deliberate: `20240101/2M/58D` is rejected (58 ≥ 2 × 28) even though no real pair of consecutive months is shorter than 59 days. Consequence: a period of exactly 1 unit (`/1M`, `/1D`) requires an **explicit smaller-unit duration** (`/1M/1D`); the default would equal the period, and continuous coverage is a bound's job, not a cadence's.
 - **Month/year duration units require a month/year period** (`/3Y/2M` ✓ · `/10D/1M` ✗): a calendar-month of coverage needs a calendar anchor to constrain against ([§9.2](#92-cadence-overflow--constrain-never-skip)), and a day-anchored recurrence supplies none.
 - At most **one cadence per expression**; union more via `|`.
 
@@ -175,7 +175,7 @@ Maps 1:1 to ISO 8601 repeating intervals (`R/2018-03-01/P14M`) and to RRULE `DTS
 
 ## 6. Absolute bounds — date literals
 
-An undesignated date-literal range clips the whole expression to an absolute window. Date literals are always 8+ digits: `YYYYMMDD[Thhmm[ss]]` (no bare `YYYY`/`YYYYMM` — that's what `Y`/`M` selectors are for).
+An undesignated date-literal range clips the whole expression to an absolute window. Date literals are always 8+ digits: `YYYYMMDD[Thhmm[ss]]` (no bare `YYYY`/`YYYYMM`; that's what `Y`/`M` selectors are for).
 
 | Form | Meaning |
 | --- | --- |
@@ -185,9 +185,9 @@ An undesignated date-literal range clips the whole expression to an absolute win
 | `20180120` | that entire day |
 | `20180120T1800` | that instant as a lower/upper edge inside a range |
 
-A bare date literal denotes its **whole span** (a day; a minute if `Thhmm` given; a second if `Thhmmss` given); a range covers from the start of its first literal through the end of its last. Note the end is span-inclusive: `*:20180120T1800` runs through the *end* of the 18:00 minute — for a strict "before 18:00," write `*:20180120T1759`. A range runs **backwards** — a syntax error, not an empty coverage — when the first literal's span **begins at or after the end of the last literal's span**: `20180120T1801:20180120T1800` is rejected, because 18:01:00 is exactly the end of the 18:00 minute-span, leaving no window (the empty case fails loudly rather than silently covering nothing). The check is decidable at parse time on the naive spans, zone-free: DST can stretch or shrink the realized window but never invert a naive ordering. **Equal** literals are valid and cover that literal's whole span — `20180120T1800:20180120T1800` is the entire 18:00 minute — and **mixed precision** is valid in either order, the coarser literal contributing its full span: `20180120T180000:20180120T1800` covers `[18:00:00, 18:01:00)`. At most one bounds component per expression. At least one endpoint must be a date literal: `*:*` is a syntax error — an unbounded window is spelled by omitting bounds.
+A bare date literal denotes its **whole span** (a day; a minute if `Thhmm` given; a second if `Thhmmss` given); a range covers from the start of its first literal through the end of its last. Note the end is span-inclusive: `*:20180120T1800` runs through the *end* of the 18:00 minute; for a strict "before 18:00," write `*:20180120T1759`. A range runs **backwards** (a syntax error, not an empty coverage) when the first literal's span **begins at or after the end of the last literal's span**: `20180120T1801:20180120T1800` is rejected, because 18:01:00 is exactly the end of the 18:00 minute-span, leaving no window (the empty case fails loudly rather than silently covering nothing). The check is decidable at parse time on the naive spans, zone-free: DST can stretch or shrink the realized window but never invert a naive ordering. **Equal** literals are valid and cover that literal's whole span (`20180120T1800:20180120T1800` is the entire 18:00 minute) and **mixed precision** is valid in either order, the coarser literal contributing its full span: `20180120T180000:20180120T1800` covers `[18:00:00, 18:01:00)`. At most one bounds component per expression. At least one endpoint must be a date literal: `*:*` is a syntax error; an unbounded window is spelled by omitting bounds.
 
-Bounds resolve in the **evaluation zone**, like every other component: `20180120` is that calendar day *as observed in the evaluation time zone*, so the window's absolute position shifts with the zone. "Absolute" means the window does not recur — not that it is pinned to UTC; the expression still carries no zone ([§1](#1-model)).
+Bounds resolve in the **evaluation zone**, like every other component: `20180120` is that calendar day *as observed in the evaluation time zone*, so the window's absolute position shifts with the zone. "Absolute" means the window does not recur, not that it is pinned to UTC; the expression still carries no zone ([§1](#1-model)).
 
 ## 7. Union — `|`
 
@@ -224,32 +224,32 @@ date        = 8digit , [ "T" , 4digit , [ 2digit ] ] ;
 timeval     = 2digit | 4digit , [ 2digit , [ "." , 3digit ] ] ;
 ```
 
-Tokens match **greedily** (longest match): `20180120T1800` is always one date-with-time literal, never a bounds `20180120` followed by a selector `T1800`; `M3Y2018` parses as two components with the whitespace elided. The date literal's `T`-glue is **unconditional**: a `T` immediately following 8 digits belongs to the literal, so a malformed time-part is a syntax error — `20180120T09` does **not** re-tokenize as bounds `20180120` + selector `T09`. Greed never backtracks on semantic failure. The time part of a date literal is an ordinary wall-clock value — `hh` ≤ 23 and `mm`/`ss` ≤ 59; hour 24 is a `T`-range token ([§4](#4-time-of-day--t)) and never appears in a date literal (`20180120T2400/1D` is a syntax error).
+Tokens match **greedily** (longest match): `20180120T1800` is always one date-with-time literal, never a bounds `20180120` followed by a selector `T1800`; `M3Y2018` parses as two components with the whitespace elided. The date literal's `T`-glue is **unconditional**: a `T` immediately following 8 digits belongs to the literal, so a malformed time-part is a syntax error: `20180120T09` does **not** re-tokenize as bounds `20180120` + selector `T09`. Greed never backtracks on semantic failure. The time part of a date literal is an ordinary wall-clock value: `hh` ≤ 23 and `mm`/`ss` ≤ 59; hour 24 is a `T`-range token ([§4](#4-time-of-day--t)) and never appears in a date literal (`20180120T2400/1D` is a syntax error).
 
-(Static validity rules — domains, stride limits, one-designator-once, `W`⇒ISO-week-year, etc. — are constraints on top of this grammar, per §[§2](#2-designators)–6. They apply to the **completed expression**, not token-by-token: components are unordered, so `D40`'s domain check must wait until it is known whether an `M`/`Q`/`Y` scope is present — `Q2 D40` is valid, and a strict single-pass check would wrongly reject it.)
+(Static validity rules — domains, stride limits, one-designator-once, `W`⇒ISO-week-year, etc. — are constraints on top of this grammar, per §[§2](#2-designators)–6. They apply to the **completed expression**, not token-by-token: components are unordered, so `D40`'s domain check must wait until it is known whether an `M`/`Q`/`Y` scope is present; `Q2 D40` is valid, and a strict single-pass check would wrongly reject it.)
 
 ## 9. Evaluation semantics
 
-Every component denotes a set of half-open instant intervals; the expression denotes their intersection; `|` unions expressions. Formally, for an instant `t` evaluated in time zone `z` (an IANA identifier; default `UTC` — [§1](#1-model)):
+Every component denotes a set of half-open instant intervals; the expression denotes their intersection; `|` unions expressions. Formally, for an instant `t` evaluated in time zone `z` (an IANA identifier; default `UTC`, [§1](#1-model)):
 
 1. Compute the calendar fields of `t` in `z` **once**: year, ISO week-year+week, quarter, month, day-of-month/quarter/year, weekday, weekday-ordinal-in-scope, time-of-day, hour, minute, second.
-2. Each selector tests its field against its normalized span set (inclusive surface ranges become half-open integer spans at parse time; negative values resolve against the *actual* parent instance — `D-1` in Feb 2024 is 29). Strides test `(value − start) mod interval < duration` within the range.
-3. A cadence covers `t` iff `t` lies inside one of its **occurrence windows**. Occurrence `k` (k ≥ 0) starts at `startₖ = constrain(anchor + k·period)` ([§9.2](#92-cadence-overflow--constrain-never-skip)) and ends at `constrain(startₖ + duration)` — the end is measured **from the constrained start**, not from the ideal `anchor + k·period + duration` (for `20240131/3M/1M`, occurrence 1 runs Apr 30 → May 30, not May 31). For `D`/`W`/`M`/`Y` periods this arithmetic is naive local-calendar and the window is a **local wall-clock interval** — membership compares `t`'s local fields against the naive window; the anchor is never resolved to an instant ([§9.3](#93-dst-and-local-time)). For `H`/`m` periods the anchor resolves to a single instant ([§9.3](#93-dst-and-local-time)) and windows are absolute elapsed time. For the exact units (`D`/`W`/`H`/`m`) this reduces to `unitsBetween(anchor, t) mod period < duration`; for month/year periods the window start **must** be computed by constrained anchor arithmetic — the reduction is wrong there (`20240131/1M/1D` covers Apr 30, which no `mod` on `monthsBetween` yields). `k` is still locatable in O(1) via `floor(unitsBetween(anchor, t) / period)` ± 1.
+2. Each selector tests its field against its normalized span set (inclusive surface ranges become half-open integer spans at parse time; negative values resolve against the *actual* parent instance: `D-1` in Feb 2024 is 29). Strides test `(value − start) mod interval < duration` within the range.
+3. A cadence covers `t` iff `t` lies inside one of its **occurrence windows**. Occurrence `k` (k ≥ 0) starts at `startₖ = constrain(anchor + k·period)` ([§9.2](#92-cadence-overflow--constrain-never-skip)) and ends at `constrain(startₖ + duration)`; the end is measured **from the constrained start**, not from the ideal `anchor + k·period + duration` (for `20240131/3M/1M`, occurrence 1 runs Apr 30 → May 30, not May 31). For `D`/`W`/`M`/`Y` periods this arithmetic is naive local-calendar and the window is a **local wall-clock interval**: membership compares `t`'s local fields against the naive window; the anchor is never resolved to an instant ([§9.3](#93-dst-and-local-time)). For `H`/`m` periods the anchor resolves to a single instant ([§9.3](#93-dst-and-local-time)) and windows are absolute elapsed time. For the exact units (`D`/`W`/`H`/`m`) this reduces to `unitsBetween(anchor, t) mod period < duration`; for month/year periods the window start **must** be computed by constrained anchor arithmetic; the reduction is wrong there (`20240131/1M/1D` covers Apr 30, which no `mod` on `monthsBetween` yields). `k` is still locatable in O(1) via `floor(unitsBetween(anchor, t) / period)` ± 1.
 4. Bounds test `t` against the absolute window.
 5. `covers(t)` ⇔ every component passes; a `|`-union covers ⇔ any branch covers.
 
-Cost: `covers` is O(#components) integer comparisons after one field extraction — no date object iteration. This is the property that makes DTRExp suitable for hot paths (e.g. per-request permission checks).
+Cost: `covers` is O(#components) integer comparisons after one field extraction, no date object iteration. This is the property that makes DTRExp suitable for hot paths (e.g. per-request permission checks).
 
-Derived operations: `intersect(a, b)` — the covered intervals clipped to a finite window (always a finite list); `next(after)` — first covered interval after an instant (candidate-stepping search, coarsest selector first).
+Derived operations: `intersect(a, b)`: the covered intervals clipped to a finite window (always a finite list); `next(after)`: first covered interval after an instant (candidate-stepping search, coarsest selector first).
 
 ### 9.1 The existence rule
 
-Selectors match against the fields of *real instants*, so a calendar position that doesn't exist in a given parent instance simply covers nothing there — no error, no substitution:
+Selectors match against the fields of *real instants*, so a calendar position that doesn't exist in a given parent instance covers nothing there, no error, no substitution:
 
-- `D29 M2` covers Feb 29 in leap years and nothing in other years. (2100 is **not** a leap year — the century rule; test vectors must include it.)
+- `D29 M2` covers Feb 29 in leap years and nothing in other years. (2100 is **not** a leap year: the century rule; test vectors must include it.)
 - `D31` covers nothing in 30-day months; `D366` and `W53` cover nothing in years that lack them; `E7#5` covers nothing in months without a fifth Sunday.
 - Ranges resolve **per parent instance**: `D25:-1` is days 25–28 in Feb 2025 but 25–31 in January. An instance where the resolved start exceeds the resolved end covers nothing there.
-- `validate()` SHOULD flag *statically unsatisfiable* expressions as warnings — they are not syntax errors. `D30 M2` can never match in any year; neither can `M-1 Q1` (`M-1` is December — [§2](#2-designators) — and December ∩ Q1 is empty). The **required minimum** (pinned by the warning vectors) is: per-selector satisfiability against the set of domain sizes implied by co-present selectors (catches `D30 M2`, `W53` — and its day-of-year twin `D366` — under concrete years that lack them, and statically-empty non-wrap ranges like `D-1:5` and `M-2:2`; a stride is sugar over a range and participates the same way — `D30:*/2 M2` warns), full-domain exclusions (`M!1:12`), and `M`∩`Q` disjointness (`M-1 Q1`). Concrete-year satisfiability (`W53 Y…`, `D366 Y…`) is required only over **closed** year spans no wider than 1,000 years; an open (`*`) or wider span MAY stay quiet. When `W` is present, `Y` is the week-year ([§2](#2-designators)) while day-of-year stays calendar, so `D366`×week-year satisfiability is cross-selector territory and MUST stay quiet — `D366 W1 Y2025` really covers Dec 31 2024 (day 366 of calendar 2024, inside week-year 2025). Deeper cross-selector analysis (day×weekday interplay and the like) is quality-of-implementation, not conformance. The converse is also conformance: the `quiet` vectors pin expressions that MUST parse with **no** warning — a linter that cries wolf is as non-conforming as one that stays silent. Warnings from every `|` branch surface on the whole expression — a dead branch is exactly the typo the warning exists for.
+- `validate()` SHOULD flag *statically unsatisfiable* expressions as warnings; they are not syntax errors. `D30 M2` can never match in any year; neither can `M-1 Q1` (`M-1` is December, [§2](#2-designators), and December ∩ Q1 is empty). The **required minimum** (pinned by the warning vectors) is: per-selector satisfiability against the set of domain sizes implied by co-present selectors (catches `D30 M2`, `W53`, and its day-of-year twin `D366`, under concrete years that lack them, and statically-empty non-wrap ranges like `D-1:5` and `M-2:2`; a stride is sugar over a range and participates the same way; `D30:*/2 M2` warns), full-domain exclusions (`M!1:12`), and `M`∩`Q` disjointness (`M-1 Q1`). Concrete-year satisfiability (`W53 Y…`, `D366 Y…`) is required only over **closed** year spans no wider than 1,000 years; an open (`*`) or wider span MAY stay quiet. When `W` is present, `Y` is the week-year ([§2](#2-designators)) while day-of-year stays calendar, so `D366`×week-year satisfiability is cross-selector territory and MUST stay quiet; `D366 W1 Y2025` really covers Dec 31 2024 (day 366 of calendar 2024, inside week-year 2025). Deeper cross-selector analysis (day×weekday interplay and the like) is quality-of-implementation, not conformance. The converse is also conformance: the `quiet` vectors pin expressions that MUST parse with **no** warning; a linter that cries wolf is as non-conforming as one that stays silent. Warnings from every `|` branch surface on the whole expression; a dead branch is exactly the typo the warning exists for.
 - To pin a calendar date, use `D`+`M`, never day-of-year: `D60 Y*` is Mar 1 in common years but Feb 29 in leap years.
 
 ### 9.2 Cadence overflow — constrain, never skip
@@ -265,10 +265,10 @@ This matches Temporal's `constrain` arithmetic. Interop note: plain RFC 5545 RRU
 
 Evaluation in a non-UTC zone follows directly from instant-based coverage:
 
-- **Nonexistent local times** (spring-forward gap): no instant ever carries those fields, so `T0230:0300` covers nothing on that day — the existence rule again.
-- **Repeated local times** (fall-back): both instants carry matching fields; **both are covered**. Local-time coverage can therefore total 23 or 25 hours on transition days — this is correct for the "local business hours" use case. The transition instant itself carries **post-transition** fields: Berlin's 2024 fall-back instant `2024-10-27T01:00:00Z` is local 02:00:00 **CET** — the first second of the second pass, not the last of the first.
-- Cadences with `D`/`W`/`M`/`Y` periods use **naive local-calendar arithmetic** in the evaluation zone: occurrence windows are **local wall-clock intervals**, and membership is decided on `t`'s local fields — the anchor is a naive local date-time, never resolved to an instant. The two rules above then apply unchanged: a repeated local time inside the window is covered **both** times (a covered "day" on a fall-back date is 25 absolute hours), and gap times are covered by nothing (23 hours). The window **duration** follows the period's arithmetic whatever its own unit: an `H`/`m` duration inside a calendar-period window is naive **wall-clock** time — `20241026T2300/2D/12H` evaluated in Berlin ends at local 11:00 even across the 25-hour fall-back night (12 wall hours, 13 absolute). `H`/`m` *periods* are **absolute elapsed time** measured from a resolved anchor instant — and by the same rule, every duration inside such a grid is a **fixed absolute length** too (`D` = 24 h, `W` = 168 h): an absolute grid has no calendar anchor to constrain against, so `20200101/48H/1D` covers exactly 24 elapsed hours per occurrence, DST or not.
-- Exactly **one** construct requires a date literal to become a single instant: the anchor of an **`H`/`m`-period cadence**, whose absolute grid needs one phase point. There, a repeated local wall-clock time resolves to the **earlier** occurrence, and one that falls in a gap resolves **forward** past it: Temporal's `compatible` disambiguation. The rule must not depend on the zone or the sign of its offset. Concretely, the gap is crossed **forward, by its own length**: in `Europe/Berlin` the 2024 spring-forward skips local 02:00–03:00 on Mar 31 (the transition is at `2024-03-31T01:00:00Z`), so an `H`/`m`-period cadence anchored at `20240331T0230` — a wall-clock time that no instant carries — resolves to local 03:30 CEST = `2024-03-31T01:30:00Z`: the literal's fields read with the **pre-transition** offset and shifted past the gap by the one-hour gap width. It does **not** collapse to the transition instant itself (local 03:00 CEST, `2024-03-31T01:00:00Z`) — a plausible but wrong choice that would pin every gap anchor to a single point regardless of where in the gap it fell. Everything else — calendar-period cadence windows (previous rule) and bounds spans ([§6](#6-absolute-bounds--date-literals)) — is a local wall-clock interval and never resolves: a bounds minute-span whose local minute repeats on a fall-back day covers **both** passes.
+- **Nonexistent local times** (spring-forward gap): no instant ever carries those fields, so `T0230:0300` covers nothing on that day, the existence rule again.
+- **Repeated local times** (fall-back): both instants carry matching fields; **both are covered**. Local-time coverage can therefore total 23 or 25 hours on transition days; this is correct for the "local business hours" use case. The transition instant itself carries **post-transition** fields: Berlin's 2024 fall-back instant `2024-10-27T01:00:00Z` is local 02:00:00 **CET**, the first second of the second pass, not the last of the first.
+- Cadences with `D`/`W`/`M`/`Y` periods use **naive local-calendar arithmetic** in the evaluation zone: occurrence windows are **local wall-clock intervals**, and membership is decided on `t`'s local fields; the anchor is a naive local date-time, never resolved to an instant. The two rules above then apply unchanged: a repeated local time inside the window is covered **both** times (a covered "day" on a fall-back date is 25 absolute hours), and gap times are covered by nothing (23 hours). The window **duration** follows the period's arithmetic whatever its own unit: an `H`/`m` duration inside a calendar-period window is naive **wall-clock** time: `20241026T2300/2D/12H` evaluated in Berlin ends at local 11:00 even across the 25-hour fall-back night (12 wall hours, 13 absolute). `H`/`m` *periods* are **absolute elapsed time** measured from a resolved anchor instant, and by the same rule, every duration inside such a grid is a **fixed absolute length** too (`D` = 24 h, `W` = 168 h): an absolute grid has no calendar anchor to constrain against, so `20200101/48H/1D` covers exactly 24 elapsed hours per occurrence, DST or not.
+- Exactly **one** construct requires a date literal to become a single instant: the anchor of an **`H`/`m`-period cadence**, whose absolute grid needs one phase point. There, a repeated local wall-clock time resolves to the **earlier** occurrence, and one that falls in a gap resolves **forward** past it: Temporal's `compatible` disambiguation. The rule must not depend on the zone or the sign of its offset. Concretely, the gap is crossed **forward, by its own length**: in `Europe/Berlin` the 2024 spring-forward skips local 02:00–03:00 on Mar 31 (the transition is at `2024-03-31T01:00:00Z`), so an `H`/`m`-period cadence anchored at `20240331T0230` (a wall-clock time that no instant carries) resolves to local 03:30 CEST = `2024-03-31T01:30:00Z`: the literal's fields read with the **pre-transition** offset and shifted past the gap by the one-hour gap width. It does **not** collapse to the transition instant itself (local 03:00 CEST, `2024-03-31T01:00:00Z`), a plausible but wrong choice that would pin every gap anchor to a single point regardless of where in the gap it fell. Everything else, calendar-period cadence windows (previous rule) and bounds spans ([§6](#6-absolute-bounds--date-literals)), is a local wall-clock interval and never resolves: a bounds minute-span whose local minute repeats on a fall-back day covers **both** passes.
 
 ### 9.4 Leap seconds
 
@@ -304,13 +304,13 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 
 ## 11. Open questions (for draft 3)
 
-1. **`W` + `M` co-occurrence** — currently legal by intersection (`W10 M3` = the part of ISO week 10 that lies in March). Confirm or forbid.
-2. **Ordinal `#` on units other than `E`** — e.g. `D15#…` makes no sense, but `W#-1 M*` ("last full week of each month") is a recurring wish. Deferred; would reintroduce week-of-month semantics.
-3. **Cadence duration in a different unit than the period** (`/10D/36H`) — currently allowed with a conservative max≤min length check; may restrict to same-unit if the check proves confusing.
-4. **`describe()` locale model** — deferred to the library spec.
+1. **`W` + `M` co-occurrence**: currently legal by intersection (`W10 M3` = the part of ISO week 10 that lies in March). Confirm or forbid.
+2. **Ordinal `#` on units other than `E`**: e.g. `D15#…` makes no sense, but `W#-1 M*` ("last full week of each month") is a recurring wish. Deferred; would reintroduce week-of-month semantics.
+3. **Cadence duration in a different unit than the period** (`/10D/36H`): currently allowed with a conservative max≤min length check; may restrict to same-unit if the check proves confusing.
+4. **`describe()` locale model**: deferred to the library spec.
 
 ## 12. Conformance
 
-An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases, warning cases, and **quiet** cases — expressions that must parse with *no* warning. The vectors — not the prose — are the contract. A recommended library surface (what to name `parse`, `covers` and friends) lives in [API.md](API.md); it is informative, never a conformance requirement.
+An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases, warning cases, and **quiet** cases: expressions that must parse with *no* warning. The vectors, not the prose, are the contract. A recommended library surface (what to name `parse`, `covers` and friends) lives in [API.md](API.md); it is informative, never a conformance requirement.
 
-The suite includes the calendar traps of [[§9.1](#91-the-existence-rule)](#91-the-existence-rule)–[[§9.3](#93-dst-and-local-time)](#93-dst-and-local-time): `D29 M2` against 2023, 2024, 2000, and **2100**; `D-1` across leap February; `W53`; `E7#5`; `20240131/3M/1D` and `20240229/1Y/1D` constrain cases; midnight-wrap + weekday intersection; the hour-24 spellings (the valid `T…:2400` and every rejected variant); and DST-transition instants in `Europe/Berlin` (gap and overlap) — including cadence occurrence windows across both transitions, the `H`-period anchor in the fall-back overlap **and** in the spring-forward gap, and an `H`-duration window across the 25-hour fall-back night.
+The suite includes the calendar traps of [[§9.1](#91-the-existence-rule)](#91-the-existence-rule)–[[§9.3](#93-dst-and-local-time)](#93-dst-and-local-time): `D29 M2` against 2023, 2024, 2000, and **2100**; `D-1` across leap February; `W53`; `E7#5`; `20240131/3M/1D` and `20240229/1Y/1D` constrain cases; midnight-wrap + weekday intersection; the hour-24 spellings (the valid `T…:2400` and every rejected variant); and DST-transition instants in `Europe/Berlin` (gap and overlap), including cadence occurrence windows across both transitions, the `H`-period anchor in the fall-back overlap **and** in the spring-forward gap, and an `H`-duration window across the 25-hour fall-back night.
