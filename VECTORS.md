@@ -19,7 +19,7 @@ Note that 2 and 3 are two sides of one requirement. Without the `quiet` class, a
 {
   "spec": 2.8,                 // the draft these vectors pin
   "description": "…",          // the conformance statement, in one paragraph
-  "coverage": [ … ],           // 95 groups, 403 instant checks
+  "coverage": [ … ],           // 97 groups, 409 instant checks
   "invalid":  [ … ],           // 57 expressions that must not parse
   "warnings": [ … ],           //  9 expressions that must warn
   "quiet":    [ … ]            //  6 expressions that must NOT warn
