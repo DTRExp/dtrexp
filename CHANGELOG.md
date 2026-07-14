@@ -4,7 +4,7 @@ DTRExp has been in the works since 2017. Draft 1 — then under the name **DTRE*
 
 ## Changes from draft 2.7 (draft 2.8)
 
-Vocabulary only — no grammar, evaluation, or vector change; the 2.7 vector suite is the 2.8 vector suite, byte for byte.
+Vocabulary, plus one late vector addition — no grammar or evaluation change. The `cadence-far-horizon-{daily,weekly}` coverage groups span one full Gregorian cycle (400 years = exactly 146,097 days) ending at the year-9999 domain ceiling: a D/W-period cadence evaluated that far from its anchor caught a real implementation bug (dtrexp-go's elapsed-time estimate clamped at `time.Duration`'s ~292.5-year ceiling, silently turning covered instants into false negatives), and the class — fixed-width duration types saturating inside the 1–9999 year domain — is exactly what a vector should pin for every future port.
 
 | Was | Now | Why |
 | --- | --- | --- |
