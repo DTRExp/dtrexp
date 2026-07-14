@@ -2,7 +2,7 @@
 
 DTRExp has been in the works since 2017. Draft 1, then under the name **DTRE**, is dated August 24, 2018; the format spent the years between in production notes and a shelved implementation. Draft 2 (2026) is a ground-up revision with one added discipline: five clean-room implementations, each built from the prose and vectors alone, plus the reference; every divergence between them resolved as a spec fix and a test vector. Newest first.
 
-## Changes from draft 2.7 (draft 2.8)
+## Changes from Draft 2.7 (draft 2.8)
 
 Vocabulary, plus one late vector addition. No grammar or evaluation change. The `cadence-far-horizon-{daily,weekly}` coverage groups span one full Gregorian cycle (400 years = exactly 146,097 days) ending at the year-9999 domain ceiling: a D/W-period cadence evaluated that far from its anchor caught a real implementation bug (dtrexp-go's elapsed-time estimate clamped at `time.Duration`'s ~292.5-year ceiling, silently turning covered instants into false negatives), and the class (fixed-width duration types saturating inside the 1–9999 year domain) is exactly what a vector should pin for every future port.
 
@@ -10,7 +10,7 @@ Vocabulary, plus one late vector addition. No grammar or evaluation change. The 
 | --- | --- | --- |
 | *Date-Time Range & **Recursion** Expression* in the title; "repetition" as the umbrella term in the prose (§5, `repetition.md`): two words for one concept, both wrong-shaped | *Date-Time Range & **Recurrence** Expression*; **recurrence** is the one umbrella term: §5 retitled, `repetition.md` → `recurrence.md` | to a programmer, *recursion* is self-reference (a function calling itself), a claim this spec never makes, and a false signal to exactly its audience; *repetition* is correct but generic; it names no domain. *Recurrence* is the established calendar-domain term (RFC 5545 `RRULE` = recurrence rule; Google Calendar, Microsoft Graph, EventKit all follow), so the title now states what the spec covers in the vocabulary implementers already search for, and one concept gets one word (the doctrine §3's `-0` decision already follows). Draft-1 syntax quoted in this file (the `/duration/interval/repetition` tail) stays verbatim; it names the old grammar, not the concept |
 
-## Changes from draft 2.6 (draft 2.7)
+## Changes from Draft 2.6 (draft 2.7)
 
 From the fifth clean-room implementation's (dtrexp-java) journal: 21 entries, probed across all **six** codebases (five ports + reference). Ten behaviors pinned; two were owner doctrine calls; one probe exposed a crash no vector had ever reached.
 
@@ -27,7 +27,7 @@ From the fifth clean-room implementation's (dtrexp-java) journal: 21 entries, pr
 | hour 24 in date literals and star-endpoint ranges in lists, both unstated | `20180120T2400/1D` rejects (hour 24 is a `T`-range token only); `M11:*,5` and `M*:3,7` are valid list items (only the bare `*` is banned) | 6-way unanimous |
 | — | `D29 M2 Y2021`: rs warns (deeper, correct analysis), five stay quiet. Left unpinned by design: §9.1 already licenses quality-of-implementation warnings beyond the minimum, and a vector could only ban one of two legitimate behaviors | recorded so it is never mistaken for an oversight |
 
-## Changes from draft 2.5 (draft 2.6)
+## Changes from Draft 2.5 (draft 2.6)
 
 An owner decision, closing the `Y` domain question the rs round surfaced: cold readers had split 3–2 on `Y0` and 2–3 on an upper bound, each implementation quietly inventing its own limits where the prose was silent.
 
@@ -36,7 +36,7 @@ An owner decision, closing the `Y` domain question the rs round surfaced: cold r
 | `Y` domain "unbounded"; `Y0` and `Y12000` implementation-defined (js/py capped at 1–9999, go/swift/rs each drew different lines) | **`Y` takes 4-digit ISO years: 1–9999, everywhere**; selector values match the range the 8-digit `YYYYMMDD` date-literal grammar already commits to; `Y0` and `Y12000` are syntax errors; `*` on `Y` resolves to the domain edge (9999 / 1) like every other designator, so `Y2020:*` still reads "2020 and every later year" | one rule for values, literals, anchors and bounds; ISO 8601 without expanded representation is exactly the 4-digit years; year 0 is 1 BCE, an invitation to the zero-confusion §3 just closed |
 | wrap and negative-value rejections on `Y` justified by "no edge / unbounded domain", a rationale the finite domain broke | rationale re-anchored: years are **absolute and non-cyclic**: wrap models a cyclic domain inside a parent instance and negatives count back from a parent's edge; `Y` sits inside nothing, so neither applies | the rules stand; only their reasons moved |
 
-## Changes from draft 2.4 (draft 2.5)
+## Changes from Draft 2.4 (draft 2.5)
 
 From the fourth clean-room implementation's (dtrexp-rs) journal: 21 entries, 18 of which the 2.4 prose already decided (the round validated the spec). The three `[VECTOR-GAP]`s were probed across all five implementations; two are pinned below, one (`Y0` and the `Y` domain bounds, a live 3–2 split among cold readers) is deferred to the owner.
 
@@ -46,7 +46,7 @@ From the fourth clean-room implementation's (dtrexp-rs) journal: 21 entries, 18 
 | backwards-bounds threshold undefined beyond one clearly-inverted vector | §6: a bounds range is backwards (syntax error) iff the first literal's span begins **at or after** the last literal's span end; equal literals cover the literal's span, mixed precision is valid in either order; vectored (invalid `…T1801:…T1800`, coverage equal-literal + mixed-precision) | 5-way unanimous behavior, previously held by luck |
 | zero on 1-based domains implied only by the domain tables (the swift journal's stumble #2, re-raised by rs) | §3 rule: literal `0` is out of domain on 1-based designators (`M0`, `D0`, `Q0`, `W0` are syntax errors); ordinary value on 0-based `H`/`m`/`s`; `D0` vectored beside the existing `M0` | two cold readers independently had to infer it; one sentence ends that |
 
-## Changes from draft 2.3 (draft 2.4)
+## Changes from Draft 2.3 (draft 2.4)
 
 Closes the round-3 triage (clean-room dtrexp-swift + the go/swift journals' prose findings). Two behavior decisions, two unanimous agreements pinned, and a new vector class.
 
@@ -61,7 +61,7 @@ Closes the round-3 triage (clean-room dtrexp-swift + the go/swift journals' pros
 | §3 "max" meant element **count** in the parse check and largest **value** in the resolution formula, three lines apart | parse check uses *N* = domain **size**; resolution is `maxValue + 1 + v` with *maxValue* the instance's largest value | the swift journal's first stumble: the examples disambiguated, the prose didn't |
 | — | §9.3: the fall-back transition instant itself carries **post-transition** fields (Berlin `2024-10-27T01:00:00Z` = local 02:00:00 CET) | the boundary case was decidable only from a vector, not the prose |
 
-## Changes from draft 2.2 (draft 2.3)
+## Changes from Draft 2.2 (draft 2.3)
 
 From the second clean-room implementation's (dtrexp-go) one substantive finding: no vector exercised a cadence on a DST transition, and the three implementations had quietly built **three different models** there. §9.3 now decides it.
 
@@ -71,7 +71,7 @@ From the second clean-room implementation's (dtrexp-go) one substantive finding:
 | anchor disambiguation (earlier/forward) stated for all cadence anchors | scoped to where a literal **must** become one instant: **`H`/`m`-period anchors and bounds literals** | under local wall-clock windows the rule was dead prose for calendar periods, and two of three implementations silently violated it where it was live |
 | — | new vectors: cadence across the Berlin spring-forward gap and fall-back overlap (calendar-period), and the `H`-period anchor in the overlap (earlier occurrence pins the absolute grid) | the corner had zero vectors; dtrexp-py and dtrexp-go both passed the full 2.2 suite while diverging from the spec (later-anchor grids) and from each other (window model) |
 
-## Changes from draft 2.1 (draft 2.2)
+## Changes from Draft 2.1 (draft 2.2)
 
 From the findings of a **clean-room second implementation** (dtrexp-py, built from prose + vectors alone under an ambiguity-journal protocol). Its journal surfaced 28 underdetermined readings; 4 were live divergences: the reference and the clean-room implementation both passed the full vector suite while disagreeing on all four. Every fix below is vectored.
 
@@ -89,7 +89,7 @@ From the findings of a **clean-room second implementation** (dtrexp-py, built fr
 | §9.1 warning SHOULD unbounded | required minimum defined (per-selector domain-size satisfiability, full-domain exclusions, `M`∩`Q` disjointness); union branches all surface | implementers could not tell how much static analysis conformance demands |
 | — | new vectors: bounds-in-zone (Berlin), month-duration window end, `H22:0` wrap, `Y` stride, `D-31`/`D-32`, `H-1`, equal-`T`, `T`-glue, `*:*`, dead-union-branch warning | six agreements previously held by luck are now pinned; four divergences decided |
 
-## Changes from draft 2 (draft 2.1)
+## Changes from Draft 2 (draft 2.1)
 
 Adopted during implementation review. Breaking against draft 2, which nobody consumed: no compatibility owed.
 
@@ -105,7 +105,7 @@ Adopted during implementation review. Breaking against draft 2, which nobody con
 | month/year cadence durations checked only by the reference parser | codified: `/nM`, `/nY` durations require month/year periods; rejection vector + `H`/`m`-period coverage vectors added | the vectors are the contract, not the parser |
 | §9.3 silent on cadence-anchor disambiguation | explicit: an anchor at a repeated local time is the **earlier** occurrence; in a gap it resolves **forward** (Temporal `compatible`) | the reference implementation resolved it by the sign of the zone's offset: Berlin got later, New York earlier; mutation testing flushed it out |
 
-### Review fixes folded into 2.1 (independent review)
+### Review Fixes Folded Into 2.1 (independent review)
 
 | Was | Now | Why |
 | --- | --- | --- |
@@ -120,7 +120,7 @@ Adopted during implementation review. Breaking against draft 2, which nobody con
 
 Considered and refused: **out-of-domain overflow** (`M14` = February, `D40 M3` = April 9). It would break the existence rule (`D29 M2` = leap day only), silently change `M5 Q2` (May → August), and stop catching typos, all fatal for the access-control use case. Wrap ranges + date-literal bounds cover both cross-boundary cases.
 
-## Changes from draft 1 / DTRE (August 24, 2018)
+## Changes from Draft 1 / DTRE (August 24, 2018)
 
 _Stated as of draft 2; ranges have since moved to `:`, see above._
 
@@ -139,7 +139,7 @@ _Stated as of draft 2; ranges have since moved to `:`, see above._
 | 4/6-digit date literals (`2015`, `201703`) | 8-digit minimum | removes `Y2015` vs `2015` ambiguity |
 | millisecond selector `S` | removed (`T` literals keep `.sss` precision) | no real use case |
 
-### Migrating the old examples
+### Migrating the Old Examples
 
 | Old (draft-1 / DTRE) | Now |
 | --- | --- |
@@ -148,7 +148,7 @@ _Stated as of draft 2; ranges have since moved to `:`, see above._
 | `M3/1/2/*` (every 2nd month from March) | `M3/2` |
 | `D3:100/5/2/10:15` (recurrence indices) | **gone**: bound the cadence with a date range instead |
 
-### What died, and why
+### What Died, and Why
 
 - **The 3-part tail on selectors** (`/duration/interval/repetition`): duration+interval inside a parent is expandable to a plain range list at parse time: sugar, kept as the stride's block form (see [recurrence.md](recurrence.md)). Across parents it's a cadence, moved to the anchored-cadence construct.
 - **Recurrence indices** (`/*3;5`, "only the 3rd and 5th recurrence"): counting occurrences from an anchor *and* filtering by index; expressible as a date bound when finite; appeared in zero real examples.

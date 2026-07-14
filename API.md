@@ -2,7 +2,7 @@
 
 > **Status: informative.** This document is a recommendation, not a conformance rule. Conformance is defined by the test vectors alone ([spec §12][spec-conformance]) — an implementation that passes `vectors.json` with a completely different API is still a conforming DTRExp implementation. But if you are building one; start here. Users who learn one DTRExp library should know them all.
 
-## Why this exists
+## Why This Exists
 
 An expression like `T0900:1800 E1:5` means the same thing in every language. The code around it should too. When parsing, coverage checks and warnings are named the same everywhere, switching languages costs nothing but syntax:
 
@@ -19,7 +19,7 @@ dtr.covers(instant, tz='Europe/Berlin')  # —> True
 
 Same vocabulary, same defaults, same mental model.
 
-## Naming: the words are fixed, the casing is yours
+## Naming: the Words Are Fixed, the Casing Is Yours
 
 An operation name in this document is a **sequence of words** — render it in your language's convention:
 
@@ -72,7 +72,7 @@ This is the hot path. Keep it to the [§9][spec-9] cost model: one field extract
 
 The [§9.1][spec-91] warnings of a parsed expression; property or method per your language's idiom. Same content as `validate().warnings` — exposed on the instance so code that parses directly doesn't lose them.
 
-## What may vary — and what may not
+## What May Vary — and What May Not
 
 Idiom wins on shape:
 
@@ -99,7 +99,7 @@ None of these affect conformance. But if you implement the operation, use the na
 | `toRRule()` | RFC 5545 export. Constrained cadences need RFC 7529 `SKIP=BACKWARD` — see [spec §9.2][spec-92]. |
 | `toString()` | The canonical form of the expression (not necessarily the original source). Where the language gives every object a built-in string conversion (Java's `toString`, Go's `String`, Python's `__str__`), it returns the source verbatim until the canonical operation is implemented — never a debug wrapper. |
 
-## Checklist for a new implementation
+## Checklist for a New Implementation
 
 1. Vendor `vectors.json` verbatim; wire it as your test suite ([spec §12][spec-conformance]). The vectors — not this document, not the prose — are the contract.
 2. Implement Core with the names above.

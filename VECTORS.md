@@ -2,7 +2,7 @@
 
 `vectors.json` is the conformance contract of the DTRExp specification. The prose in [spec.md](spec.md) explains the format; whether an implementation conforms is decided by this file alone. If the prose and the vectors ever disagree, the vectors win and the prose gets fixed.
 
-## What conforming means
+## What Conforming Means
 
 An implementation is conforming iff **all four** hold:
 
@@ -13,7 +13,7 @@ An implementation is conforming iff **all four** hold:
 
 Note that 2 and 3 are two sides of one requirement. Without the `quiet` class, a linter could warn on everything and still "pass"; false positives would be unfalsifiable. A linter that cries wolf is as non-conforming as a silent one.
 
-## File structure
+## File Structure
 
 ```jsonc
 {
@@ -64,7 +64,7 @@ Each group is one expression evaluated at several instants:
 
 A `warnings` expression parses successfully **and** reports at least one warning ([spec §9.1](spec.md#91-the-existence-rule)). A `quiet` expression parses with none; each carries a *note* explaining why warning on it would be wrong. Warning texts are not pinned, only the fact of warning.
 
-## Wiring it into an implementation
+## Wiring It into an Implementation
 
 1. **Vendor the file verbatim.** Copy `vectors.json` into your test tree; do not reformat, filter or merge it. Byte-identical vendoring is what lets one suite certify many implementations.
 2. Drive all four sections from one runner. This is a few dozen lines in any language; every existing implementation does it this way.
@@ -72,7 +72,7 @@ A `warnings` expression parses successfully **and** reports at least one warning
 
 Do not hand-pick "the relevant" vectors. The suite is deliberately heavy on the corners that break date libraries: February 29 across 2000 / 2024 / **2100**, `W53` existence per ISO week-year, the Berlin spring-forward gap and fall-back overlap, and constrain arithmetic on month-end anchors. If your implementation fails exactly one strange-looking vector, that vector is probably the one doing its job.
 
-## When your implementation disagrees
+## When Your Implementation Disagrees
 
 First re-read the relevant spec section; the vectors have been validated by six independent implementations, so the odds favor the vectors. If you still believe a vector is wrong, [open an issue](https://github.com/DTRExp/dtrexp/issues); a disputed vector is a spec bug either way: either the behavior is wrong, or the prose that led you elsewhere is.
 

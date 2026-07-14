@@ -1,8 +1,8 @@
-# DTRExp — Recurrence, cleanly
+# DTRExp — Recurrence, Cleanly
 
 _One question decides everything._
 
-## The one question
+## The One Question
 
 > **Does the pattern look the same in every parent cycle?**
 
@@ -31,7 +31,7 @@ Rules:
 
 Stride is pure convenience; `H0/4` and `H0,4,8,12,16,20` are the same expression. It adds terseness, not power.
 
-## Construct 2 — Anchored cadence `<date>/<n><unit>[/<n><unit>]` (anchor-based)
+## Construct 2 — Anchored Cadence `<date>/<n><unit>[/<n><unit>]` (anchor-based)
 
 A component that **starts with a date literal**: _from this date, repeat every `<period>`, covering `<duration>` each time (default: 1 period-unit)._
 
@@ -47,7 +47,7 @@ Rules:
 - Evaluation is still O(1): `elapsed = unitsBetween(anchor, instant)`; covered iff `elapsed % period < duration`.
 - This is the thing cron famously **cannot** express ("every 10 days") and RRULE expresses only via `DTSTART` + `INTERVAL`. It maps 1:1 to ISO 8601 repeating intervals (`R/2018-03-01/P14M`), so `toRRule()` / ISO interop falls out for free.
 
-## Composing them
+## Composing Them
 
 Components still just intersect, like everything else in DTRExp:
 
@@ -57,7 +57,7 @@ Components still just intersect, like everything else in DTRExp:
 | `m0:19 H0/4` | first 20 minutes of every 4th hour (da Vinci's sleep) |
 | `E1 20180301/14M` | Mondays that fall inside each 14-month recurrence window |
 
-## Cheat sheet
+## Cheat Sheet
 
 > Same pattern every year/day/hour? → **selector + `/n` stride.**
 > Pattern drifts across the calendar? → **date-anchored cadence.**
