@@ -20,7 +20,7 @@ A DTRExp denotes a possibly infinite set of time intervals. You don't expand it 
 
 ---
 
-## Why is this needed?
+## Why Is This Needed?
 
 Software constantly needs to store *"when does this apply?"* as data, not as code, not as a materialized list of dates:
 
@@ -36,7 +36,7 @@ Two properties make this hard for existing formats:
 
 DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant or a config file, with **O(1) coverage evaluation**. One calendar-field extraction, then per-component integer tests ([spec.md §9](spec.md#9-evaluation-semantics)).
 
-## What can DTRExp express that others can't?
+## What Can DTRExp Express That Others Can't?
 
 No single existing format combines all of these; each row breaks at least one incumbent:
 
@@ -53,9 +53,9 @@ No single existing format combines all of these; each row breaks at least one in
 
 And one meta-capability: **conformance by test vectors.** The spec ships `vectors.json` (expression, instant, tz → expected); an implementation is conforming iff it passes them. See [VECTORS.md](VECTORS.md) for the file's structure and how to wire it into an implementation.
 
-## The alternatives, honestly
+## The Alternatives, Honestly
 
-### cron (and Quartz)
+### Cron (and Quartz)
 
 **Good at:** triggering jobs. Ubiquitous, terse, everyone half-remembers the five fields. Quartz adds seconds, years, `L` (last), `#` (nth weekday), `W` (nearest weekday).
 
@@ -71,7 +71,7 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 *Use ISO 8601 when:* exchanging concrete timestamps and simple repeating intervals across systems. DTRExp uses its date syntax (`YYYYMMDD`) precisely for this familiarity.
 
-### RFC 5545 iCalendar RRULE (and rrule.js)
+### RFC 5545 ICalendar RRULE (and rrule.js)
 
 **Good at:** calendar-event recurrence. The most expressive incumbent by far: `FREQ=YEARLY;BYMONTH=4;BYDAY=-1SU` *is* "last Sunday of April." `BYSETPOS`, negative ordinals, `COUNT`/`UNTIL` bounds, well-understood by every calendar system on earth. If your problem is "when does this *event* repeat," RRULE is the right and standard answer.
 
@@ -93,13 +93,13 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 *Use opening_hours when:* you're working with OSM data, or your domain literally is opening hours. It's the strongest evidence that DTRExp's category (compact coverage expressions) is real and wanted.
 
-### Schedule libraries (later.js, rSchedule, node-schedule)
+### Schedule Libraries (later.js, rSchedule, node-schedule)
 
 **Good at:** in-process scheduling APIs. rSchedule's date-library-agnostic core is good engineering (DTRExp's reference implementation borrows the idea).
 
 **Fails at:** being a format. These are libraries, not specifications; their schedule definitions (JSON blobs, builder chains) are not portable literals, have no conformance story, and several are semi-abandoned. Storing a later.js JSON blob in your database couples your data to one unmaintained package's semantics forever.
 
-## Where DTRExp deliberately does less
+## Where DTRExp Deliberately Does Less
 
 What a format does *not* do should be stated as directly as what it does. DTRExp is **not**:
 
@@ -108,7 +108,7 @@ What a format does *not* do should be stated as directly as what it does. DTRExp
 - **A natural-language parser.** `E7#2 M5` is written by people who read a one-page spec, not by parsing "second Sunday of May."
 - **Timezone-clever.** Expressions are tz-agnostic by design; the zone is an evaluation parameter (default UTC). This is a feature — "09:00–18:00" means local business hours wherever you evaluate it — but it means a single expression can't mix zones.
 
-## Design principles
+## Design Principles
 
 1. **One way to say it.** One range operator (inclusive `:`; half-open only for clock time), one negation position, one ordinal mechanism, one stride form.
 2. **Ambiguity is a syntax error.** An anchorless stride (`Y*/3`, "every 3rd year from *when?*") doesn't get a default; it doesn't parse.
@@ -116,7 +116,7 @@ What a format does *not* do should be stated as directly as what it does. DTRExp
 4. **The vectors are the contract.** If prose and `vectors.json` ever disagree, the vectors win and the prose gets fixed.
 5. **DST correctness is emergent, not special-cased.** Coverage is defined on instants, and calendar fields are extracted from the instant in the evaluation zone; so spring-forward gaps cover nothing and fall-back repeats cover both passes, with no DST rules in the model. Independent implementations discover this property rather than code it.
 
-## Repository layout
+## Repository Layout
 
 | File | What |
 | --- | --- |

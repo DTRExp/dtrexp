@@ -2,7 +2,7 @@
 
 DTRExp is in an open comment window (Draft 2; the current revision is in [spec.md](spec.md)'s header). Feedback is genuinely wanted — ambiguities found now are grammar fixes; found later, they're breaking changes.
 
-## How to contribute: open an issue
+## How to Contribute: Open an Issue
 
 All suggestions — ambiguities, gaps, errors, over-engineered corners, missing use cases — go through [issues](../../issues). Describe the problem and, if you have one, the idea for resolving it.
 
@@ -12,7 +12,7 @@ All suggestions — ambiguities, gaps, errors, over-engineered corners, missing 
 
 Substantive issue reports that lead to spec changes are credited in the changelog ([CHANGELOG.md](CHANGELOG.md)) and, where appropriate, in the acknowledgements of the specification itself.
 
-## Contribution terms
+## Contribution Terms
 
 By submitting an issue, comment, or any other content to this repository, you agree that:
 
