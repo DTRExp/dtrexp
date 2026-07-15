@@ -168,11 +168,11 @@ let ok = try dtr.covers(Date(), tz: "Europe/Berlin")
 Not on Maven Central yet; build from source with [`dtrexp-java`](https://github.com/DTRExp/dtrexp-java)'s `./run.sh`. The planned coordinate is `io.onury:dtrexp`. Pure Java 17+, zero dependencies (`java.time` for IANA zones).
 
 ```java
-import io.onury.dtrexp.DtrExp;
+import io.onury.dtrexp.DTRExp;
 import java.time.Instant;
 
-DtrExp dtr = DtrExp.parse("T0900:1800 E1:5");   // Mon–Fri, 09:00–18:00
-// throws a positioned DtrExpParseException on a syntax or static-validity error
+DTRExp dtr = DTRExp.parse("T0900:1800 E1:5");   // Mon–Fri, 09:00–18:00
+// throws a positioned DTRExpParseException on a syntax or static-validity error
 
 boolean open = dtr.covers(Instant.now(), "Europe/Berlin");
 // —> true on a weekday, 09:00–18:00 Berlin local time
