@@ -1,0 +1,194 @@
+---
+title: Getting Started
+description: Install a DTRExp library in your language and evaluate your first expression.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+**DTRExp: Date-Time Range & Recurrence Expression** — a compact string expression for describing "***when***", evaluated by *coverage*. The name reads as "**DTR Expression**"; `dtrexp` is its package spelling.
+
+An expression like `T0900:1800 E1:5` (Mon–Fri, 09:00–18:00) means the same thing in every language, and so does the code around it; parsing, coverage checks and warnings share [one vocabulary](/api/) across all implementations. Learn one library and you know them all.
+
+## Install and Evaluate
+
+Pick your language. Every implementation is zero-dependency and passes the same [conformance vectors](/vectors/).
+
+<Tabs syncKey="lang">
+<TabItem label="JavaScript">
+
+```sh
+npm i dtrexp
+```
+
+Requires Node.js ≥ 22. This is the reference implementation, in TypeScript.
+
+```ts
+import { parse } from 'dtrexp';
+
+const dtr = parse('T0900:1800 E1:5');
+
+// coverage — built for per-request hot paths
+dtr.covers(new Date(), { tz: 'Europe/Berlin' });
+// —> true (weekday, 09:00–18:00 Berlin local time)
+
+// enumeration on demand — a finite window is always a finite list
+dtr.intersect('2026-07-06T00:00:00Z', '2026-07-13T00:00:00Z');
+// —> 5 intervals, one per business day
+
+// "when does it next apply?"
+dtr.next('2026-07-11T10:00:00Z');
+// —> { start: 2026-07-13T09:00:00Z, end: 2026-07-13T18:00:00Z }
+
+parse('E7#-1 M4').describe();
+// —> 'the last Sunday in April'
+
+parse('D25 M12').toRRule();
+// —> 'RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25'
+```
+
+</TabItem>
+<TabItem label="WASM">
+
+```sh
+npm i dtrexp-wasm
+```
+
+The Rust core compiled to WebAssembly, for browsers and JS runtimes. The wasm binary (~63 KB, ~29 KB gzipped) ships inside the package and instantiates at import; no fetch configuration, no separate asset step.
+
+```js
+import { parse, validate } from 'dtrexp-wasm';
+
+const dtr = parse('T0900:1800 E1:5'); // business hours
+dtr.covers(new Date(), { tz: 'Europe/Berlin' }); // —> true
+dtr.covers('2026-07-11T10:00:00Z'); // —> false (a Saturday, evaluated in UTC)
+
+validate('D30 M2');
+// —> { valid: true, errors: [], warnings: [{ message: '…unsatisfiable…', position: 0 }] }
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```sh
+pip install dtrexp
+```
+
+Python 3.11+, stdlib only (`zoneinfo` for IANA zones).
+
+```python
+from datetime import datetime, timezone
+import dtrexp
+
+dtr = dtrexp.parse("T0900:1800 E1:5")   # business hours, Mon–Fri
+
+dtr.covers(datetime(2026, 7, 7, 10, 0, tzinfo=timezone.utc))
+# —> True (UTC — the default)
+dtr.covers(datetime(2026, 7, 7, 7, 30, tzinfo=timezone.utc), tz="Europe/Berlin")
+# —> True (09:30 Berlin local time)
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```sh
+go get github.com/DTRExp/dtrexp-go
+```
+
+Go 1.26+, stdlib only (`time` for IANA zones).
+
+```go
+import (
+    "time"
+    dtrexp "github.com/DTRExp/dtrexp-go"
+)
+
+dtr, err := dtrexp.Parse("T0900:1800 E1:5")    // business hours, Mon–Fri
+if err != nil { /* a positioned ParseError */ }
+
+ok, err := dtr.Covers(time.Now(), "Europe/Berlin")
+// —> true on a weekday, 09:00–18:00 Berlin local time
+
+// Preloaded zone; cannot fail:
+berlin, _ := time.LoadLocation("Europe/Berlin")
+ok = dtr.CoversIn(time.Now(), berlin)
+```
+
+</TabItem>
+<TabItem label="Rust">
+
+```sh
+cargo add dtrexp
+```
+
+Rust 2021 edition. No dependencies, including the zone handling; IANA zones are read straight from the system TZif database.
+
+```rust
+use dtrexp::{parse, Tz};
+
+let dtr = parse("T0900:1800 E1:5").unwrap();   // business hours, Mon–Fri
+
+// 2026-07-07 (a Tuesday) 10:00:00Z, in ms since the Unix epoch:
+let t: i64 = 1_783_418_400_000;
+
+let ok = dtr.covers(t, "Europe/Berlin").unwrap();
+// —> true; a weekday, 09:00–18:00 Berlin local time.
+
+// Preloaded zone; cannot fail:
+let berlin = Tz::load("Europe/Berlin").unwrap();
+let ok = dtr.covers_in(t, &berlin);
+```
+
+</TabItem>
+<TabItem label="Swift">
+
+Add the package to your `Package.swift`:
+
+```swift
+.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.0.0")
+```
+
+Swift 6.0+, Foundation only (`TimeZone` and `Date` for IANA zones and instants).
+
+```swift
+import DTRExp
+
+let dtr = try DTRExp("T0900:1800 E1:5")    // business hours, Mon–Fri
+
+let berlin = TimeZone(identifier: "Europe/Berlin")!
+dtr.covers(Date(), timeZone: berlin)
+// —> true on a weekday, 09:00–18:00 Berlin local time
+
+// By IANA name; throws on an unknown identifier:
+let ok = try dtr.covers(Date(), tz: "Europe/Berlin")
+```
+
+</TabItem>
+<TabItem label="Java">
+
+Not on Maven Central yet; build from source with [`dtrexp-java`](https://github.com/DTRExp/dtrexp-java)'s `./run.sh`. The planned coordinate is `io.onury:dtrexp`. Pure Java 17+, zero dependencies (`java.time` for IANA zones).
+
+```java
+import io.onury.dtrexp.DtrExp;
+import java.time.Instant;
+
+DtrExp dtr = DtrExp.parse("T0900:1800 E1:5");   // Mon–Fri, 09:00–18:00
+// throws a positioned DtrExpParseException on a syntax or static-validity error
+
+boolean open = dtr.covers(Instant.now(), "Europe/Berlin");
+// —> true on a weekday, 09:00–18:00 Berlin local time
+```
+
+</TabItem>
+</Tabs>
+
+_Note: the timezone is an **evaluation parameter**, never part of the expression. `T0900:1800` means local business hours wherever you evaluate it; omit the zone and evaluation is in UTC._
+
+## Reading an Expression
+
+Components are space-separated and intersect (`D13 E5` = day 13 **and** a Friday); `|` unions alternatives. Each component is a designator letter plus values: `Y` year, `Q` quarter, `M` month, `W` ISO week, `D` day, `E` ISO weekday, `T` a clock range, `H`/`m`/`s` hour/minute/second patterns. Values take ranges (`E1:5`), lists (`M3,6,9`), negation (`M!7`), ordinals (`E7#-1`) and strides (`Y*/2`); a date literal anchors absolute bounds or a cadence (`20200106/10D`). The full grammar fits in [one page of the spec](/spec/#8-grammar-ebnf).
+
+## Next
+
+- [Why DTRExp](/why/) — what it can express that cron, RRULE and ISO 8601 can't; and where they win.
+- [The Spec](/spec/) — the model, the grammar and the evaluation semantics. Draft 2.8.
+- [Implementations](/implementations/) — all packages, registries and platform notes in one place.

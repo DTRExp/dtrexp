@@ -1,0 +1,70 @@
+---
+title: DTRExp
+description: Date-Time Range & Recurrence Expression — a compact string expression for describing "when", evaluated by coverage.
+template: splash
+hero:
+  title: ''
+  image:
+    light: ../../assets/logo.svg
+    dark: ../../assets/logo-dark.svg
+    alt: DTRExp
+  tagline: Date-Time Range & Recurrence Expression — a compact string expression for describing "when", evaluated by coverage.
+  actions:
+    - text: Get Started
+      link: /getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: Read the Spec
+      link: /spec/
+      variant: secondary
+    - text: GitHub
+      link: https://github.com/DTRExp/dtrexp
+      icon: external
+      variant: minimal
+---
+
+```txt
+T0900:1800 E1:5                 Mon–Fri, 09:00–18:00
+E7#-1 M4                        last Sunday of April, every year
+20200106/10D                    every 10 days from 2020-01-06
+D13 E5                          every Friday the 13th
+D-7:* Y*                        last 7 days of every year
+M!7                             every month except July
+m0:19 H0/4                      Leonardo da Vinci's sleep (per the legend)
+```
+
+A DTRExp denotes a possibly infinite set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
+
+{/* Feature cards use the shared `.feature-grid` classes from @onury/docs-kit. */}
+<div class="feature-grid">
+  <div class="feature">
+    <div class="feature-head">
+      <span class="feature-icon ti fi-green">◆</span>
+      <h3>Coverage</h3>
+    </div>
+    <p>Membership is the primitive, not enumeration. "Every Monday, forever" stays an expression; <code>covers(now)</code> answers without generating a single date.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-head">
+      <span class="feature-icon ti fi-blue">◆</span>
+      <h3>Fast</h3>
+    </div>
+    <p>One calendar-field extraction, then per-component integer tests. Built for the hot path; an access-control check on every request.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-head">
+      <span class="feature-icon ti fi-purple">◆</span>
+      <h3>Compact</h3>
+    </div>
+    <p>A short literal that fits in a database column, a JSON value, an ACL grant or a config file. No multi-property envelope.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-head">
+      <span class="feature-icon ti fi-orange">◆</span>
+      <h3>Tested</h3>
+    </div>
+    <p>Conformance is defined by <a href="/vectors/">test vectors</a>, not prose. Six zero-dependency implementations pass all of them; the Rust core also ships as WASM.</p>
+  </div>
+</div>
+
+<p class="site-copyright">© {new Date().getFullYear()}, <a href="https://github.com/onury">Onur Yıldırım</a>&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;<a href="https://github.com/DTRExp/dtrexp/blob/main/LICENSE.md">CC-BY-4.0 &amp; MIT License</a></p>

@@ -1,0 +1,10 @@
+{
+  "name": "dtrexp",
+  "private": true,
+  "description": "Date-Time Range & Recurrence Expression — a compact string expression for describing \"when\", evaluated by coverage.",
+  "license": "(CC-BY-4.0 AND MIT)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DTRExp/dtrexp.git"
+  }
+}
