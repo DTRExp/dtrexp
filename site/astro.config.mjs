@@ -48,7 +48,16 @@ export default defineConfig({
         },
         {
           label: 'Ecosystem',
-          items: [{ label: 'Implementations', slug: 'implementations' }]
+          items: [
+            { label: 'Implementations', slug: 'implementations' },
+            { label: 'JavaScript / TypeScript', slug: 'javascript' },
+            { label: 'WASM', slug: 'wasm' },
+            { label: 'Python', slug: 'python' },
+            { label: 'Go', slug: 'go' },
+            { label: 'Rust', slug: 'rust' },
+            { label: 'Swift', slug: 'swift' },
+            { label: 'Java', slug: 'java' }
+          ]
         },
         {
           label: 'Help',
