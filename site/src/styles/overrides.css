@@ -1,0 +1,22 @@
+/* ===========================================================================
+ * overrides.css — PER-PROJECT theme tokens (loaded after the shared theme).
+ * ---------------------------------------------------------------------------
+ * The shared look comes from @onury/docs-kit. Override any token here to give
+ * THIS docs site its own flavor without affecting the other projects.
+ *
+ * Most common: the accent color. Set `--oy-accent` (the shared theme derives
+ * `--sl-color-accent` + `--sl-color-accent-high` from it). Uncomment & edit:
+ * =========================================================================== */
+
+:root {
+  --oy-accent: #28b56a;                  /* DTRExp brand green (the mark's fill) */
+  /* --oy-accent-high: var(--oy-accent); */ /* high-contrast accent (defaults to --oy-accent) */
+  /* --oy-hero-align: start; */          /* home hero alignment: center (default) or start (left) */
+}
+
+/* Need finer control? Override any Starlight token here too, e.g.:
+:root {
+  --sl-color-accent-low: #11204a;
+  --sl-color-text-accent: var(--sl-color-accent-high);
+}
+*/
