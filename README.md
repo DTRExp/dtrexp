@@ -1,4 +1,4 @@
-<p align="center"><img src="./.github/logo.svg" width="200" alt="DTRExp" /></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="./.github/logo-dark.svg"><img src="./.github/logo.svg" width="200" alt="DTRExp" /></picture></p>
 
 **DTRExp: Date-Time Range & Recurrence Expression** — a compact string expression for describing "***when***", evaluated by *coverage*. The name reads as "**DTR Expression**"; `dtrexp` is its package spelling.
 
