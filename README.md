@@ -128,7 +128,7 @@ What a format does *not* do should be stated as directly as what it does. DTRExp
 | [CHANGELOG.md](CHANGELOG.md) | draft-by-draft changes, each with its reasoning |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | how feedback comes in (issues, not PRs) and why |
 
-Implementations, each developed against the vectors: [`dtrexp-js`](https://github.com/DTRExp/dtrexp-js) (TypeScript, the reference), [`dtrexp-py`](https://github.com/DTRExp/dtrexp-py), [`dtrexp-go`](https://github.com/DTRExp/dtrexp-go), [`dtrexp-swift`](https://github.com/DTRExp/dtrexp-swift), [`dtrexp-rs`](https://github.com/DTRExp/dtrexp-rs), [`dtrexp-java`](https://github.com/DTRExp/dtrexp-java). All zero-dependency.
+Implementations, each developed against the vectors: [`dtrexp-js`](https://github.com/DTRExp/dtrexp-js) (TypeScript, the reference), [`dtrexp-py`](https://github.com/DTRExp/dtrexp-py), [`dtrexp-go`](https://github.com/DTRExp/dtrexp-go), [`dtrexp-swift`](https://github.com/DTRExp/dtrexp-swift), [`dtrexp-rs`](https://github.com/DTRExp/dtrexp-rs), [`dtrexp-java`](https://github.com/DTRExp/dtrexp-java). All zero-dependency. The Rust core also ships as [`dtrexp-wasm`](https://github.com/DTRExp/dtrexp-wasm) for browsers and JS runtimes.
 
 ## Feedback
 
