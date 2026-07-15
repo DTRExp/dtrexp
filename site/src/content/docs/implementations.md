@@ -17,14 +17,14 @@ They share [one API vocabulary](/api/); operation names are fixed as words (`cov
 | Swift | [`dtrexp-swift`](https://github.com/DTRExp/dtrexp-swift) via SwiftPM | `.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.0.0")` | Swift 6.0+ |
 | Java | [`dtrexp-java`](https://github.com/DTRExp/dtrexp-java), from source | `./run.sh` (planned coordinate: `io.onury:dtrexp`) | Java 17+ |
 
-Platform notes, terse:
+Each language has its own page with install, worked examples and the full member table:
 
-- **JavaScript** ([`dtrexp-js`](https://github.com/DTRExp/dtrexp-js)) — the reference implementation. TypeScript, ESM, zero runtime dependencies.
-- **WASM** ([`dtrexp-wasm`](https://github.com/DTRExp/dtrexp-wasm)) — the Rust core via wasm-bindgen; ~63 KB wasm, ~29 KB gzipped, instantiates at import. IANA zones come from the host's `Intl` data, so no timezone database is bundled.
-- **Python** ([`dtrexp-py`](https://github.com/DTRExp/dtrexp-py)) — stdlib only; `zoneinfo` for IANA zones.
-- **Go** ([`dtrexp-go`](https://github.com/DTRExp/dtrexp-go)) — stdlib only; `time` for IANA zones.
-- **Rust** ([`dtrexp-rs`](https://github.com/DTRExp/dtrexp-rs)) — no dependencies, including the zone handling; IANA zones are read straight from the system TZif database.
-- **Swift** ([`dtrexp-swift`](https://github.com/DTRExp/dtrexp-swift)) — Foundation only; `TimeZone` and `Date` for zones and instants.
-- **Java** ([`dtrexp-java`](https://github.com/DTRExp/dtrexp-java)) — pure Java 17+, zero dependencies; `java.time` for IANA zones. Not on Maven Central yet.
+- **[JavaScript / TypeScript](/javascript/)** ([`dtrexp-js`](https://github.com/DTRExp/dtrexp-js)) — the reference implementation. TypeScript, ESM, zero runtime dependencies.
+- **[WASM](/wasm/)** ([`dtrexp-wasm`](https://github.com/DTRExp/dtrexp-wasm)) — the Rust core via wasm-bindgen; ~63 KB wasm, ~29 KB gzipped, instantiates at import. IANA zones come from the host's `Intl` data, so no timezone database is bundled.
+- **[Python](/python/)** ([`dtrexp-py`](https://github.com/DTRExp/dtrexp-py)) — stdlib only; `zoneinfo` for IANA zones.
+- **[Go](/go/)** ([`dtrexp-go`](https://github.com/DTRExp/dtrexp-go)) — stdlib only; `time` for IANA zones.
+- **[Rust](/rust/)** ([`dtrexp-rs`](https://github.com/DTRExp/dtrexp-rs)) — no dependencies, including the zone handling; IANA zones are read straight from the system TZif database.
+- **[Swift](/swift/)** ([`dtrexp-swift`](https://github.com/DTRExp/dtrexp-swift)) — Foundation only; `TimeZone` and `Date` for zones and instants.
+- **[Java](/java/)** ([`dtrexp-java`](https://github.com/DTRExp/dtrexp-java)) — pure Java 17+, zero dependencies; `java.time` for IANA zones. Not on Maven Central yet.
 
 Building your own? Start from the [library interface](/api/) and wire in the [vectors](/vectors/); an implementation that passes `vectors.json` is a conforming DTRExp implementation, whatever its internals look like.
