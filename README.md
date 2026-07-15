@@ -16,7 +16,7 @@ That last line is da Vinci's polyphasic sleep schedule; per the legend, he nappe
 
 A DTRExp denotes a possibly infinite set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
 
-**Status: Draft 2.8 (RFC).** See [spec.md](spec.md) for the full specification and [recurrence.md](recurrence.md) for the recurrence-model rationale. (Draft 1 and the DTRE generation are superseded and archived outside this repo.)
+**Status: Draft 2.8 (RFC).** See [spec.md](spec.md) for the full specification and [recurrence.md](recurrence.md) for the recurrence-model rationale; both are also rendered at **[dtrexp.org](https://dtrexp.org)**, with per-language docs. (Draft 1 and the DTRE generation are superseded and archived outside this repo.)
 
 ---
 
