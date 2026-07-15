@@ -20,7 +20,7 @@ A DTRExp denotes a possibly infinite set of time intervals. You don't expand it 
 
 ---
 
-## Why Is This Needed?
+## Why is this needed?
 
 Software constantly needs to store *"when does this apply?"* as data, not as code, not as a materialized list of dates:
 
@@ -36,7 +36,7 @@ Two properties make this hard for existing formats:
 
 DTRExp is designed for exactly this shape: a short literal that fits in a database column, a JSON value, an ACL grant or a config file, with **O(1) coverage evaluation**. One calendar-field extraction, then per-component integer tests ([spec.md §9](spec.md#9-evaluation-semantics)).
 
-## What Can DTRExp Express That Others Can't?
+## What can DTRExp express that others can't?
 
 No single existing format combines all of these; each row breaks at least one incumbent:
 
