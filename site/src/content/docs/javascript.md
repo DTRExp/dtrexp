@@ -11,7 +11,7 @@ description: "dtrexp on npm — the reference TypeScript implementation of DTREx
 npm i dtrexp
 ```
 
-Requires Node.js ≥ 22.
+Requires Node.js ≥ 20.
 
 ## Quick Start
 

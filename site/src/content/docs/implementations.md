@@ -9,7 +9,7 @@ They share [one API vocabulary](/api/); operation names are fixed as words (`cov
 
 | Language | Package | Install | Requires |
 | --- | --- | --- | --- |
-| TypeScript / JavaScript *(reference)* | [`dtrexp`](https://www.npmjs.com/package/dtrexp) on npm | `npm i dtrexp` | Node.js ≥ 22 |
+| TypeScript / JavaScript *(reference)* | [`dtrexp`](https://www.npmjs.com/package/dtrexp) on npm | `npm i dtrexp` | Node.js ≥ 20 |
 | WebAssembly *(the Rust core)* | [`dtrexp-wasm`](https://www.npmjs.com/package/dtrexp-wasm) on npm | `npm i dtrexp-wasm` | any modern browser or JS runtime |
 | Python | [`dtrexp`](https://pypi.org/project/dtrexp/) on PyPI | `pip install dtrexp` | Python 3.11+ |
 | Go | [`dtrexp-go`](https://github.com/DTRExp/dtrexp-go) via the Go proxy | `go get github.com/DTRExp/dtrexp-go` | Go 1.26+ |
