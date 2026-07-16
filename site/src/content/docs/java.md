@@ -7,7 +7,15 @@ description: "dtrexp-java — the Java port of DTRExp. Parsing, validation and c
 
 ## Install
 
-Not on Maven Central yet. Build from source with `./run.sh`; it compiles the sources under `src/` and runs the conformance suite. The planned coordinate is `io.onury:dtrexp`.
+```xml
+<dependency>
+  <groupId>io.onury</groupId>
+  <artifactId>dtrexp</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
+
+Gradle: `implementation("io.onury:dtrexp:1.0.1")`. Or skip the build tool entirely — zero dependencies, so building from source is just `./run.sh` (compiles the sources under `src/` and runs the conformance suite).
 
 ## Quick Start
 
@@ -102,5 +110,5 @@ The test suite is driven by the shared [`vectors.json`](https://github.com/DTREx
 ## Links
 
 - Repository: [DTRExp/dtrexp-java](https://github.com/DTRExp/dtrexp-java)
-- Planned Maven coordinate: `io.onury:dtrexp` (not published yet; build from source with `./run.sh`).
+- Maven Central: [`io.onury:dtrexp`](https://central.sonatype.com/artifact/io.onury/dtrexp)
 - Reference implementation with `intersect`, `next`, `describe` and `toRRule`: [JavaScript / TypeScript](/javascript/).
