@@ -2,6 +2,20 @@
 
 DTRExp has been in the works since 2017. Draft 1, then under the name **DTRE**, is dated August 24, 2018; the format spent the years between in production notes and a shelved implementation. Draft 2 (2026) is a ground-up revision with one added discipline: five clean-room implementations, each built from the prose and vectors alone, plus the reference; every divergence between them resolved as a spec fix and a test vector. Newest first.
 
+## Changes from Draft 2.8 (draft 2.9)
+
+The Extended operations get a definition and a contract. No grammar or Core evaluation change: `vectors.json` is byte-identical to 2.8, and a 2.8-conforming implementation is 2.9-conforming as it stands.
+
+The reason is the reference implementation. Its `next()` and `intersect()` returned intervals `covers()` denies on every DST transition day in every non-UTC zone (a phantom minute inside the spring-forward gap, the second pass of the fall-back hour dropped, ranges straddling the transition off by the shift), for two months after release, at 100% coverage and a 100% mutation score. Nothing outside its own unit tests could see it, because §9 gave the derived operations one sentence and the vectors gave them nothing. Verification without pinning rots; this is the third time this changelog records the lesson.
+
+| Was | Now | Why |
+| --- | --- | --- |
+| §9: "`next(after)`: first covered interval after an instant (candidate-stepping search, coarsest selector first)" — an algorithm hint the reference does not even use, silent on *strictly after*, *maximal*, and the empty result | §9 defines a **covered interval** on the instant set (maximal, half-open) and derives `next`, `covering` and `intersect` from it; DST stays emergent, as for `covers()` | a definition a clean-room port can build from; the hint decided nothing |
+| — | **`covering(instant)`**: the covered interval containing an instant, or nothing; `covers(t)` iff `covering(t)` is present | `next()` skips the interval in progress by design, so a display had no way to say "applies now, until …"; a second name is additive, a changed `next()` would not be |
+| `intersect(a, b, window)` in API.md, "the covered intervals of two expressions" | `intersect(start, end [, zone])`: one expression over a window, as the reference has always had it | API.md contradicted the model it named; two independent reviews caught it the same day |
+| Tier 2 unpinned ("none of these affect conformance") | **`vectors-extended.json`**, binding by name: ship `next`, pass `next`; Core conformance unchanged and still decided by `vectors.json` alone | the only way a port that adds an Extended operation ends up meaning the same thing by it |
+| `next()` returning nothing read as "never applies" | nothing means *no covered interval starts after `after`*: true of spent coverage and of coverage in progress that never ends; `covering()` answers the other question | one meaning, stated; a sentinel would have broken every caller for one bit `covers()` already gives |
+
 ## Changes from Draft 2.7 (draft 2.8)
 
 Vocabulary, plus one late vector addition. No grammar or evaluation change. The `cadence-far-horizon-{daily,weekly}` coverage groups span one full Gregorian cycle (400 years = exactly 146,097 days) ending at the year-9999 domain ceiling: a D/W-period cadence evaluated that far from its anchor caught a real implementation bug (dtrexp-go's elapsed-time estimate clamped at `time.Duration`'s ~292.5-year ceiling, silently turning covered instants into false negatives), and the class (fixed-width duration types saturating inside the 1–9999 year domain) is exactly what a vector should pin for every future port.

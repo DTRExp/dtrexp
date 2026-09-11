@@ -89,19 +89,20 @@ The vocabulary does not:
 
 ## Extended (Tier 2)
 
-None of these affect conformance. But if you implement the operation, use the name — the reference implementation ([dtrexp-js][js]) is the model:
+None of these affect **Core** conformance. But if you implement the operation, use the name — the reference implementation ([dtrexp-js][js]) is the model — and pass its section of [`vectors-extended.json`](vectors-extended.json): shipping the name is what binds you to the vectors.
 
 | Operation | Meaning |
 | --- | --- |
-| `next(after [, zone])` | The first **maximal** covered interval starting strictly after `after`; the interval containing `after`, if any, is skipped. `null` when no interval starts before the year-9999 horizon. |
+| `next(after [, zone])` | The first **maximal** covered interval starting strictly after `after`; the interval containing `after`, if any, is skipped. Nothing (`null`, `None`, `nil`, an empty optional) when no interval starts before the year-9999 horizon. |
+| `covering(instant [, zone])` | The maximal covered interval containing `instant`, or nothing. `covers(t)` holds iff `covering(t)` is present. |
 | `intersect(start, end [, zone])` | The covered intervals clipped to the finite half-open window `[start, end)`: a finite, sorted, merged list. |
 | `describe([locale])` | Human-readable text of the expression. |
 | `toRRule()` | RFC 5545 export. Constrained cadences need RFC 7529 `SKIP=BACKWARD` — see [spec §9.2][spec-92]. |
 | `toString()` | The canonical form of the expression (not necessarily the original source). Where the language gives every object a built-in string conversion (Java's `toString`, Go's `String`, Python's `__str__`), it returns the source verbatim until the canonical operation is implemented — never a debug wrapper. |
 
-`next()` and `intersect()` are derived from `covers()` and return only instants it accepts, DST transition days included ([spec §9.3][spec-93]): a clock time inside a spring-forward gap yields no interval, a repeated fall-back time yields one per pass, and two covered spans separated by any uncovered instant stay two intervals. A *maximal* interval is one that cannot be extended at either end.
+`next()`, `covering()` and `intersect()` are derived from `covers()` ([spec §9][spec-9], *Derived operations*) and return only instants it accepts, DST transition days included ([spec §9.3][spec-93]): a clock time inside a spring-forward gap yields no interval, a repeated fall-back time yields one per pass, and two covered spans separated by any uncovered instant stay two intervals. A *maximal* interval is one that cannot be extended at either end; one that reaches the edge of the year 1–9999 domain starts or ends there.
 
-`null` from `next()` means one thing: no covered interval starts strictly after `after` before the horizon. That is true when the coverage is exhausted (bounded and past its end, or unsatisfiable) and when it is continuous from `after` on (`E1:7` covers every instant, so nothing ever *starts*). It does not mean "never applies"; `covers(after)` says whether the expression applies at `after`. A scheduler that fires at interval starts treats `null` as "nothing left to arm"; a UI shows the current state from `covers()` and the next start from `next()`.
+`null` from `next()` means one thing: no covered interval starts strictly after `after` before the horizon. That is true when the coverage is exhausted (bounded and past its end, or unsatisfiable) and when it is continuous from `after` on (`E1:7` covers every instant, so nothing ever *starts*). It does not mean "never applies"; `covering(after)` returns the interval in progress, if any. A scheduler that fires at interval starts treats `null` as "nothing left to arm"; a display shows "applies now, until …" from `covering()` and "next applies at …" from `next()`.
 
 ## Checklist for a New Implementation
 

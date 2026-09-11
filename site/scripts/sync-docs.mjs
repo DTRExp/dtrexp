@@ -63,7 +63,7 @@ for (const { out } of files) {
     body = body.replace(re, (_m, open, anchor = '') => `${open}${route(f.out)}${anchor}`);
   }
   // Links to repo files that have no site page → GitHub.
-  for (const gh of ['vectors.json', 'LICENSE.md', 'CONTRIBUTING.md']) {
+  for (const gh of ['vectors.json', 'vectors-extended.json', 'LICENSE.md', 'CONTRIBUTING.md']) {
     body = body
       .split(`](${gh})`).join(`](${GH_BLOB}/${gh})`)
       .split(`](./${gh})`).join(`](${GH_BLOB}/${gh})`);

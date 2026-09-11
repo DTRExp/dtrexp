@@ -96,6 +96,7 @@ parse('D25 M12').toRRule();
 | `covers(instant, opts?)` | Whether the expression covers the instant. O(#components) integer tests after one field extraction. |
 | `intersect(start, end, opts?)` | Covered intervals clipped to `[start, end)`: a finite, sorted, merged list of half-open `{ start: Date, end: Date }` intervals. |
 | `next(after, opts?)` | The first **maximal** covered interval starting strictly after `after` (coverage containing `after` is skipped). `null` when nothing starts before the year-9999 horizon: the coverage is exhausted, or it is continuous from `after` on (`E1:7` covers every instant, so nothing ever *starts*); neither means "never applies", `covers(after)` says whether it applies now. |
+| `covering(instant, opts?)` | The **maximal** covered interval containing `instant`, or `null` when it is not covered (`covers(t)` holds iff `covering(t)` is not `null`). The "applies now, until …" half of a display; `next()` is the "next applies at …" half. Coverage that reaches the edge of the year 1–9999 domain starts or ends there. |
 | `describe(locale?)` | Human-readable English rendering. v1 supports `'en'`; the parameter is reserved. |
 | `toRRule()` | RFC 5545 RRULE (+ `DTSTART` when anchored) for the losslessly-mappable subset, else `null`. Constrained cadences emit RFC 7529 `SKIP=BACKWARD`. |
 | `toString()` | Canonical normalized form (redundant components dropped, canonical order, wraps re-fused). |
