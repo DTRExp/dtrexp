@@ -61,7 +61,7 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Fails at:** everything that isn't a trigger. A cron line matches *instants* (minute granularity); there are no durations, so "09:00–18:00" needs external logic. There are no bounds ("until 2027") in classic cron. And the famous one: **"every 10 days" is impossible**, because `*/10` in the day field resets every month (1, 11, 21, 31, then 1 again; the phase snaps back). Negation doesn't exist. Standard cron can't even say "last day of the month."
 
-*Use cron when:* you're scheduling job execution and the pattern is calendar-locked. That's its home turf; DTRExp is not a job scheduler.
+*Use cron when:* a cron scheduler is already in front of you and the pattern is calendar-locked. It is not the only choice: DTRExp schedules jobs too, with one host rule — **a job fires once, at the start of each maximal covered interval.** `T0020` fires every day at 00:20; `H0/6 m0` four times a day; `20200106/10D` every ten days, which cron cannot say. The primitive is `next(after)`: arm a timer for the start it returns, run, ask again. And a duration can mean something a trigger never could — `T0020:0100` is a job that starts at 00:20 and has until 01:00 to finish.
 
 ### ISO 8601 (durations, intervals, repeating intervals) and ISO 8601-2:2019
 
