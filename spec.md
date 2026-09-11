@@ -1,6 +1,6 @@
 # DTRExp — Date-Time Range & Recurrence Expression
 
-**Draft 2.8** · Status: RFC · 2026-07-10 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
+**Draft 2.9** · Status: RFC · 2026-09-11 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
 
 A DTRExp (read: "**DTR expression**") is a compact string expression denoting a (possibly infinite) set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
 
@@ -240,7 +240,7 @@ Every component denotes a set of half-open instant intervals; the expression den
 
 Cost: `covers` is O(#components) integer comparisons after one field extraction, no date object iteration. This is the property that makes DTRExp suitable for hot paths (e.g. per-request permission checks).
 
-Derived operations: `intersect(a, b)`: the covered intervals clipped to a finite window (always a finite list); `next(after)`: first covered interval after an instant (candidate-stepping search, coarsest selector first).
+**Derived operations.** Let *C* be the set of instants the expression covers in zone *z*. A **covered interval** is a maximal half-open `[s, e)` inside *C*: every instant of `[s, e)` is covered, and neither *e* nor the instant before *s* is. Because *C* is a set of instants, DST needs no rule here: a spring-forward gap contributes no instants, and a repeated fall-back hour contributes both passes, which form one interval only if every instant between them is covered too. `covering(t)` is the covered interval containing *t*, or nothing. `next(after)` is the covered interval with the least *s* strictly greater than *after*, or nothing when none starts before the horizon; coverage in progress at *after* is skipped, whether or not it ever ends. `intersect(start, end)` is the covered intervals meeting `[start, end)`, each clipped to it, in order; always a finite list. The domain is years 1–9999 ([§2](#2-designators)); an interval that reaches its edge starts or ends there. These are Extended operations ([API.md](API.md)), outside Core conformance: an implementation that ships one under its name is bound by that operation's section of [`vectors-extended.json`](vectors-extended.json) ([§12](#12-conformance)).
 
 ### 9.1 The Existence Rule
 
@@ -311,6 +311,6 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 
 ## 12. Conformance
 
-An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases, warning cases, and **quiet** cases: expressions that must parse with *no* warning. The vectors, not the prose, are the contract. A recommended library surface (what to name `parse`, `covers` and friends) lives in [API.md](API.md); it is informative, never a conformance requirement.
+An implementation is conforming iff it accepts/rejects and evaluates the shared test vectors (**[`vectors.json`](vectors.json)**, shipped with this draft): `{ expression, tz, instant → expected }` coverage groups, plus rejection cases, warning cases, and **quiet** cases: expressions that must parse with *no* warning. The vectors, not the prose, are the contract. The Extended operations of [§9](#9-evaluation-semantics) (`next`, `covering`, `intersect`) are pinned by **[`vectors-extended.json`](vectors-extended.json)**, binding only on an implementation that ships the operation under its name; Core conformance is decided by `vectors.json` alone and does not require them. A recommended library surface (what to name `parse`, `covers` and friends) lives in [API.md](API.md); it is informative, never a conformance requirement.
 
 The suite includes the calendar traps of [[§9.1](#91-the-existence-rule)](#91-the-existence-rule)–[[§9.3](#93-dst-and-local-time)](#93-dst-and-local-time): `D29 M2` against 2023, 2024, 2000, and **2100**; `D-1` across leap February; `W53`; `E7#5`; `20240131/3M/1D` and `20240229/1Y/1D` constrain cases; midnight-wrap + weekday intersection; the hour-24 spellings (the valid `T…:2400` and every rejected variant); and DST-transition instants in `Europe/Berlin` (gap and overlap), including cadence occurrence windows across both transitions, the `H`-period anchor in the fall-back overlap **and** in the spring-forward gap, and an `H`-duration window across the 25-hour fall-back night.

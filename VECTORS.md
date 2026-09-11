@@ -64,6 +64,23 @@ Each group is one expression evaluated at several instants:
 
 A `warnings` expression parses successfully **and** reports at least one warning ([spec §9.1](spec.md#91-the-existence-rule)). A `quiet` expression parses with none; each carries a *note* explaining why warning on it would be wrong. Warning texts are not pinned, only the fact of warning.
 
+## Extended Vectors (Tier 2)
+
+`vectors-extended.json` pins the Extended operations of [API.md](API.md): `next`, `covering` and `intersect`. It binds by name: an implementation that ships one of them under that name must pass that operation's section, and one that doesn't ignores the section. Core conformance is decided by `vectors.json` alone, which is unchanged since draft 2.8 (byte-identical, so its `spec` field still reads 2.8 and the ports that ship Core only have nothing to re-vendor).
+
+```jsonc
+{
+  "spec": 2.9,
+  "tier": "extended",
+  "description": "…",
+  "next":      [ … ],   // groups of after → interval, as for coverage
+  "covering":  [ … ],   // groups of instant → interval
+  "intersect": [ … ]    // one window → the interval list
+}
+```
+
+`next` and `covering` groups look like `coverage` groups with an interval where the boolean was: `"2026-07-07T10:00:00Z": ["2026-07-08T09:00:00Z", "2026-07-08T18:00:00Z"]`, or `null` for no interval. Every interval is half-open `[start, end)`. A `null` start or end says the interval runs to the edge of the year 1–9999 domain; the vector pins the other end only, since where exactly an implementation clips (its floor or horizon instant, in the evaluation zone) is its own. An `intersect` group carries one `window` and the `expected` list, in order, clipped to the window. Half of the groups sit on DST transitions (`Europe/Berlin`, `America/Santiago`, `America/Havana`, `Africa/Cairo`, `Pacific/Apia`); that is where derived intervals go wrong while `covers()` stays right, and the reference implementation shipped exactly that bug until these vectors existed.
+
 ## Wiring It into an Implementation
 
 1. **Vendor the file verbatim.** Copy `vectors.json` into your test tree; do not reformat, filter or merge it. Byte-identical vendoring is what lets one suite certify many implementations.

@@ -16,7 +16,7 @@ That last line is da Vinci's polyphasic sleep schedule; per the legend, he nappe
 
 A DTRExp denotes a possibly infinite set of time intervals. You don't expand it into dates; you ask it questions: *does it cover this instant?* *What does it cover between these two dates?* *When does it next apply?*
 
-**Status: Draft 2.8 (RFC).** See [spec.md](spec.md) for the full specification and [recurrence.md](recurrence.md) for the recurrence-model rationale; both are also rendered at **[dtrexp.org](https://dtrexp.org)**, with per-language docs. (Draft 1 and the DTRE generation are superseded and archived outside this repo.)
+**Status: Draft 2.9 (RFC).** See [spec.md](spec.md) for the full specification and [recurrence.md](recurrence.md) for the recurrence-model rationale; both are also rendered at **[dtrexp.org](https://dtrexp.org)**, with per-language docs. (Draft 1 and the DTRE generation are superseded and archived outside this repo.)
 
 ---
 
@@ -108,7 +108,7 @@ Four consequences of that rule, each of which surprises somebody the first time:
 - **`next()` skips the interval you are standing in.** It answers "when does the next one start?", not "does this apply now?"; ask `covers(now)` for the current state and `intersect()` for what is covered between two dates. For a trigger this is the right shape: a job already running must not be started again.
 - **Adjacent coverage is one interval, and fires once.** Cron's `0-5 * * * *` fires six times an hour; its DTRExp, `m0:5`, is one six-minute interval per hour and fires once. `T0000:2400` is one interval per day. In other words, a wider window means fewer firings, not more; a cron line whose firings are a minute apart has no DTRExp trigger equivalent. Write what should fire (`T0020`), not what should be covered, unless the duration means something.
 - **A single clock value is a one-minute interval, not an instant.** `T0020` is `T0020:0021` (`T002000` is one second, `T002000.500` one millisecond); the job fires at its start, and a human reading it back sees "00:20–00:21", which is what it is. Note that a `T` value takes a range, never a duration: `T0020:0100`, not `T0020/1`; the `/` form belongs to strides and cadences ([§5](spec.md#51-stride--calendar-locked-recurrence)).
-- **`null` from `next()` means "no later start"**, in both of its cases: the coverage is exhausted (bounded and past its end, or unsatisfiable), or it is continuous from `after` on (`E1:7` covers every instant, so nothing ever *starts*). Neither means "never applies"; `covers(now)` says whether it applies now.
+- **`null` from `next()` means "no later start"**, in both of its cases: the coverage is exhausted (bounded and past its end, or unsatisfiable), or it is continuous from `after` on (`E1:7` covers every instant, so nothing ever *starts*). Neither means "never applies"; `covering(now)` returns the interval in progress, and a display pairs the two: "applies now, until …" from `covering()`, "next applies at …" from `next()`.
 
 Everything after the start is the host's: the clock, jitter, overlap, missed-run and catch-up policy, retries. DTRExp defines *when*; the scheduler runs. Store the zone next to the expression ([§9.3](spec.md#93-dst-and-local-time)); `T0020` in Berlin and `T0020` in UTC are two different jobs. Validate on write with `validate()` rather than `parse()`: it returns every error with a position, and its warnings carry the unsatisfiability lint ([§9.1](spec.md#91-the-existence-rule)); `D30 M2` parses and never fires.
 
