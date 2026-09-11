@@ -46,7 +46,7 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Fails at:** everything that isn't a trigger. A cron line matches *instants* (minute granularity); there are no durations, so "09:00–18:00" needs external logic. There are no bounds ("until 2027") in classic cron. And the famous one: **"every 10 days" is impossible**, because `*/10` in the day field resets every month (1, 11, 21, 31, then 1 again; the phase snaps back). Negation doesn't exist. Standard cron can't even say "last day of the month."
 
-*Use cron when:* a cron scheduler is already in front of you and the pattern is calendar-locked. It is not the only choice: DTRExp schedules jobs too, with one host rule — **a job fires once, at the start of each maximal covered interval.** `T0020` fires every day at 00:20; `H0/6 m0` four times a day; `20200106/10D` every ten days, which cron cannot say. The primitive is `next(after)`: arm a timer for the start it returns, run, ask again. And a duration can mean something a trigger never could — `T0020:0100` is a job that starts at 00:20 and has until 01:00 to finish.
+*Use cron when:* a cron runner is already in front of you. That is cron's real edge, and it is not in the pattern: every cron line comes with a daemon and an ecosystem that speaks it (crontab, systemd timers, Kubernetes `CronJob`, CI schedules, Quartz, every cloud scheduler). Every classic cron line is a DTRExp (`0 9 * * 1-5` is `T0900 E1:5`), and what cron can't say stays unsayable in cron. As a schedule language DTRExp is the stronger of the two: it fires every ten days, on the last day of the month, on Friday the 13th, never in July, and it can give a job a deadline. The one rule a host needs is in [Scheduling with DTRExp](#scheduling-with-dtrexp).
 
 ### ISO 8601 (durations, intervals, repeating intervals) and ISO 8601-2:2019
 
@@ -84,11 +84,40 @@ And one meta-capability: **conformance by test vectors.** The spec ships `vector
 
 **Fails at:** being a format. These are libraries, not specifications; their schedule definitions (JSON blobs, builder chains) are not portable literals, have no conformance story, and several are semi-abandoned. Storing a later.js JSON blob in your database couples your data to one unmaintained package's semantics forever.
 
+## Scheduling with DTRExp
+
+A DTRExp denotes intervals, not fire times; a scheduler needs one convention to turn the first into the second: **a job fires once, at the start of each maximal covered interval.** The primitive is `next(after)`: arm a timer for the start it returns, run, ask again from that start. `T0020` fires every day at 00:20; `H0/6 m0` four times a day; `20200106/10D` every ten days, which cron cannot say. And a duration can mean something a trigger never could: `T0020:0100` is a job that starts at 00:20 and has until 01:00 to finish; the host checks `covers(now)` while it runs and stops it when that turns false.
+
+Four consequences of that rule, each of which surprises somebody the first time:
+
+- **`next()` skips the interval you are standing in.** It answers "when does the next one start?", not "does this apply now?"; ask `covers(now)` for the current state and `intersect()` for what is covered between two dates. For a trigger this is the right shape: a job already running must not be started again.
+- **Adjacent coverage is one interval, and fires once.** Cron's `0-5 * * * *` fires six times an hour; its DTRExp, `m0:5`, is one six-minute interval per hour and fires once. `T0000:2400` is one interval per day. In other words, a wider window means fewer firings, not more; a cron line whose firings are a minute apart has no DTRExp trigger equivalent. Write what should fire (`T0020`), not what should be covered, unless the duration means something.
+- **A single clock value is a one-minute interval, not an instant.** `T0020` is `T0020:0021` (`T002000` is one second, `T002000.500` one millisecond); the job fires at its start, and a human reading it back sees "00:20–00:21", which is what it is. Note that a `T` value takes a range, never a duration: `T0020:0100`, not `T0020/1`; the `/` form belongs to strides and cadences ([§5](/spec/#51-stride--calendar-locked-recurrence)).
+- **`null` from `next()` means "no later start"**, in both of its cases: the coverage is exhausted (bounded and past its end, or unsatisfiable), or it is continuous from `after` on (`E1:7` covers every instant, so nothing ever *starts*). Neither means "never applies"; `covers(now)` says whether it applies now.
+
+Everything after the start is the host's: the clock, jitter, overlap, missed-run and catch-up policy, retries. DTRExp defines *when*; the scheduler runs. Store the zone next to the expression ([§9.3](/spec/#93-dst-and-local-time)); `T0020` in Berlin and `T0020` in UTC are two different jobs. Validate on write with `validate()` rather than `parse()`: it returns every error with a position, and its warnings carry the unsatisfiability lint ([§9.1](/spec/#91-the-existence-rule)); `D30 M2` parses and never fires.
+
+Cron to DTRExp, for the lines everyone half-remembers:
+
+| cron | DTRExp | |
+| --- | --- | --- |
+| `20 0 * * *` | `T0020` | daily at 00:20 |
+| `0 */6 * * *` | `H0/6 m0` | 00:00, 06:00, 12:00, 18:00 |
+| `*/15 * * * *` | `m0/15` | every 15 minutes, on the quarter |
+| `0 8 * * 1-5` | `T0800 E1:5` | weekdays at 08:00 |
+| `0 0 L * *` (Quartz) | `T0000 D-1` | last day of the month |
+| `0 9 * * 5#2` (Quartz) | `T0900 E5#2` | second Friday of the month |
+| no cron | `T0900 20200106/10D` | every 10 days at 09:00 |
+| no cron | `T0800 E1:5 M!8` | weekdays at 08:00, not in August |
+| no cron | `T0300:0500 D-1` | last day of the month, 03:00 with a 05:00 deadline |
+
+Two cron features have no DTRExp on purpose: `W` (nearest weekday) is a runner's decision about a missed day, not a schedule, and `@reboot` is not a time.
+
 ## Where DTRExp Deliberately Does Less
 
 What a format does *not* do should be stated as directly as what it does. DTRExp is **not**:
 
-- **A job scheduler.** No jitter, no missed-run policy, no execution semantics. Pair it with a scheduler if you need triggers.
+- **A job runner.** It has no clock, no jitter, no missed-run or catch-up policy, no execution semantics, and no instants: a trigger is the start of a covered interval, by the one rule in [Scheduling with DTRExp](#scheduling-with-dtrexp). `next()` is a Tier 2 operation ([API](/api/)), today in the JavaScript implementation; the Core interface every port ships is `covers()`.
 - **A calendar-event interchange format.** No attendees, no event metadata, no per-occurrence overrides. That's iCalendar/JSCalendar's job; use `toRRule()` at the boundary.
 - **A natural-language parser.** `E7#2 M5` is written by people who read a one-page spec, not by parsing "second Sunday of May."
 - **Timezone-clever.** Expressions are tz-agnostic by design; the zone is an evaluation parameter (default UTC). This is a feature — "09:00–18:00" means local business hours wherever you evaluate it — but it means a single expression can't mix zones.
