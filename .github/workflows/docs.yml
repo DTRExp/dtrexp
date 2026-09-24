@@ -12,6 +12,11 @@ on:
       - 'src/**'
       - 'README.md'
       - 'CHANGELOG.md'
+      # Root docs the site syncs at build time (site/scripts/sync-docs.mjs)
+      - 'spec.md'
+      - 'recurrence.md'
+      - 'API.md'
+      - 'VECTORS.md'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
