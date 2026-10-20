@@ -6,7 +6,7 @@ DTRExp has been in the works since 2017. Draft 1, then under the name **DTRE**, 
 
 | Was | Now | Why |
 | --- | --- | --- |
-| — | §2: an instant outside years 1–9999 has no specified answer; an implementation may compute one or reject the instant | the spec was silent, and the ports simply compute (`E1:7` covers year 10000 in the reference); saying so keeps a port that rejects such instants conforming, and no vector depends on it |
+| — | §3: an instant outside years 1–9999 has no specified answer; an implementation may compute one or reject the instant | the spec was silent, and the ports simply compute (`E1:7` covers year 10000 in the reference); saying so keeps a port that rejects such instants conforming, and no vector depends on it |
 
 ## Changes from Draft 2.8 (draft 2.9)
 
