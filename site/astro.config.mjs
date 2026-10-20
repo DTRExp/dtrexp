@@ -16,8 +16,7 @@ export default defineConfig({
       title: "DTRExp",
       description: "Date-Time Range & Recurrence Expression — a compact string expression for describing \"when\", evaluated by coverage.",
       logo: {
-        light: './src/assets/logo-text.svg',
-        dark: './src/assets/logo-text-dark.svg',
+        src: './src/assets/logo-text.svg',
         replacesTitle: true
       },
       social: [{ icon: 'github', label: 'GitHub', href: "https://github.com/DTRExp/dtrexp" }],
