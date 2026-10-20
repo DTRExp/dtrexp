@@ -96,8 +96,10 @@ do {
 
 | Member | Description |
 | --- | --- |
-| `covers(_:timeZone:)` | Whether the expression covers the instant, evaluated in the given `TimeZone` (default UTC). A single calendar-field extraction followed by integer comparisons. Cannot fail. |
+| `covers(_:timeZone:)` | Whether the expression covers the instant, evaluated in the given `TimeZone`: by default the bound `zone`, else UTC; a `timeZone` passed here wins. A single calendar-field extraction followed by integer comparisons. Cannot fail. |
 | `covers(_:tz:)` | Same, by IANA identifier `String`; throws an `EvaluationError` for an unknown zone. |
+| `withZone(_:)` | A copy whose evaluation defaults to the given `TimeZone`, or the zone an IANA identifier names (throwing `EvaluationError` at once for an unknown, empty or `"localtime"` one); the original is left as it is, and the copy's source and warnings are the same. |
+| `zone` | The bound `TimeZone?`, `nil` when none is bound. |
 | `warnings` | The [§9.1](/spec/#91-the-existence-rule) unsatisfiability warnings of the parsed expression; same content as `validate(_:).warnings`. |
 | `source` | The original expression, verbatim. |
 

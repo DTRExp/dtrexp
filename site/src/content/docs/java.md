@@ -87,9 +87,12 @@ DTRExp.parse("Y*/3");   // anchorless stride — throws DTRExpParseException
 
 | Member | Description |
 | --- | --- |
-| `covers(Instant)` | Whether the expression covers the instant, evaluated in UTC. A single calendar-field extraction followed by integer comparisons. |
+| `covers(Instant)` | Whether the expression covers the instant, evaluated in the bound zone (`withZone`), else UTC. A single calendar-field extraction followed by integer comparisons. |
 | `covers(Instant, ZoneId)` | Same, evaluated in a preloaded `ZoneId`. |
 | `covers(Instant, String)` | Same, evaluated in a zone given as an IANA identifier. |
+| `withZone(ZoneId)` | A copy whose `covers(Instant)` defaults to that zone; the original is left as it is, and a zone passed to a call still wins. The copy's source and warnings are the same. |
+| `withZone(String)` | Same, with the zone given as an IANA identifier; an unknown or empty identifier fails at once, as `ZoneId.of` does. |
+| `zone()` | The bound zone as an `Optional<ZoneId>`, empty when none is bound. |
 | `warnings()` | The [§9.1](/spec/#91-the-existence-rule) unsatisfiability warnings of the parsed expression; a `List<DTRExpWarning>`, same content as `validate(s).warnings()`. |
 | `toString()` | The source expression, verbatim. |
 

@@ -68,7 +68,9 @@ res.warnings    # —> (DTRExpWarning(message="unsatisfiable …", position=0),)
 
 | Member | Description |
 | --- | --- |
-| `covers(instant, tz="UTC")` | Whether the expression covers the instant, evaluated in `tz`. A single calendar-field extraction followed by integer comparisons; no occurrence iteration. |
+| `covers(instant, tz=None)` | Whether the expression covers the instant, evaluated in `tz`: by default the bound `zone`, else UTC; a `tz` passed here wins. A single calendar-field extraction followed by integer comparisons; no occurrence iteration. |
+| `with_zone(tz)` | A copy whose evaluation defaults to `tz`; the original is left as it is, and the copy's text and warnings are the same. A non-`str` raises `TypeError`, an empty name `ValueError`, and an unknown zone (`"localtime"` included) `ZoneInfoNotFoundError`, at once. |
+| `zone` | The bound zone as given, `None` when none is bound. |
 | `warnings` | The [§9.1](/spec/#91-the-existence-rule) warnings of the parsed expression; same content as `validate(text).warnings`. |
 
 ### Errors and Warnings

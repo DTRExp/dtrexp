@@ -93,8 +93,10 @@ if errors.As(err, &pe) {
 
 | Member | Description |
 | --- | --- |
-| `Covers(t time.Time, tz string) (bool, error)` | Whether the expression covers the instant `t`, evaluated in IANA zone `tz`. An empty `tz` means UTC. Returns an error only when `tz` is not a loadable zone; `"Local"`, Go's name for the host's zone, is refused (since v1.0.1). |
-| `CoversIn(t time.Time, loc *time.Location) bool` | `Covers` with an already-resolved `*time.Location` (`nil` means UTC); cannot fail. |
+| `Covers(t time.Time, tz string) (bool, error)` | Whether the expression covers the instant `t`, evaluated in IANA zone `tz`. An empty `tz` means the bound zone (`WithZone`), else UTC; any other `tz` wins. Returns an error only when `tz` is not a loadable zone; `"Local"` and `"localtime"`, names for the host's zone, are refused. |
+| `CoversIn(t time.Time, loc *time.Location) bool` | `Covers` with an already-resolved `*time.Location` (`nil` means the bound zone, else UTC); cannot fail. |
+| `WithZone(zone string) (*Expression, error)` | A copy whose evaluation defaults to `zone`; the original is left as it is, and a zone passed to a call still wins. The copy's source and warnings are the same. An unknown, empty, `"Local"` or `"localtime"` zone is an error at once. |
+| `Zone() string` | The bound zone as given, `""` when none is bound. |
 | `Warnings() []Warning` | The [§9.1](/spec/#91-the-existence-rule) warnings collected during parsing; same content as `Validate(s).Warnings`. Empty for a clean expression. |
 | `Source() string` | The original expression string, verbatim. |
 

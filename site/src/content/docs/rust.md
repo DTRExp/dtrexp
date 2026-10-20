@@ -84,8 +84,10 @@ err.message;    // —> "hour out of range — 24 exists only as the exact token
 
 | Member | Description |
 | --- | --- |
-| `covers(instant_ms, tz_id)` | Whether the expression covers the instant, evaluated in IANA zone `tz_id`. Returns `Result<bool, UnknownTimeZone>`; an empty identifier or `"UTC"` selects UTC. One field extraction followed by integer tests. |
+| `covers(instant_ms, tz_id)` | Whether the expression covers the instant, evaluated in IANA zone `tz_id`. Returns `Result<bool, UnknownTimeZone>`; an empty identifier means the bound zone (`with_zone`), else UTC; any other identifier, `"UTC"` included, wins. `"localtime"` is refused. One field extraction followed by integer tests. |
 | `covers_in(instant_ms, &tz)` | The preloaded-zone variant; evaluate against an already-loaded `Tz`, infallibly. Returns `bool`. |
+| `with_zone(tz_id)` | A copy whose evaluation defaults to `tz_id`, loaded once at bind; the original is left as it is, and the copy's warnings are the same. Returns `Result<Dtrexp, UnknownTimeZone>`: an unknown or empty identifier fails at once. |
+| `zone()` | The bound zone as given, `None` when none is bound. |
 | `warnings()` | The [§9.1](/spec/#91-the-existence-rule) unsatisfiability warnings of the parsed expression; the same content `validate()` returns. Empty for a clean expression. |
 
 ### Zones

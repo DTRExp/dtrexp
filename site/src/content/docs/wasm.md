@@ -82,12 +82,14 @@ parse('D30 M2').warnings;
 | Member | Description |
 | --- | --- |
 | `covers(instant, opts?)` | Whether the expression covers the instant. Returns `Boolean`. An unknown zone throws a `RangeError`; exactly what `Intl` itself throws for one. |
+| `withZone(tz)` | A copy whose evaluation defaults to the IANA zone `tz`; the original is left as it is, and the copy's `source` and `warnings` are the same. A `{ tz }` passed to a call still wins. An unknown zone throws a `RangeError` at once, and one that is not a string a `TypeError`. |
+| `zone` | The bound zone as `Intl` names it (`'utc'` → `'UTC'`), or `undefined` when none is bound. A parsed expression is frozen, bound or not. |
 | `warnings` | The [§9.1](/spec/#91-the-existence-rule) unsatisfiability warnings of the parsed expression; same content as `validate(source).warnings`, exposed on the instance so code that parses directly doesn't lose them. |
 
 ### Inputs & Options
 
 - **Instants**: `Date`, epoch milliseconds, ISO 8601 string, or any Temporal-like object exposing `epochMilliseconds` (no Temporal dependency).
-- **`opts.tz`**: IANA time zone for evaluation (e.g. `"Europe/Berlin"`), default (or `null`) `"UTC"`. Pass it as `{ tz }`: a bare string, or a zone that is not a string, throws `TypeError` (since 1.0.2).
+- **`opts.tz`**: IANA time zone for evaluation (e.g. `"Europe/Berlin"`), default (or `null`) the bound `zone` (`withZone()`), else `"UTC"`. Pass it as `{ tz }`: a bare string, or a zone that is not a string, throws `TypeError` (since 1.0.2).
 
 ### Time Zones
 
