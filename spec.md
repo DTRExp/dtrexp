@@ -224,6 +224,9 @@ bounds      = date | ( date , ":" , ( date | "*" ) ) | ( "*" , ":" , date ) ;
 date        = 8digit , [ "T" , 4digit , [ 2digit ] ] ;
 
 timeval     = 2digit | 4digit , [ 2digit , [ "." , 3digit ] ] ;
+
+integer     = digit , { digit } ;                       (* leading zeros allowed: M03 = M3 *)
+digit       = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;  (* ASCII only *)
 ```
 
 Tokens match **greedily** (longest match): `20180120T1800` is always one date-with-time literal, never a bounds `20180120` followed by a selector `T1800`; `M3Y2018` parses as two components with the whitespace elided. The date literal's `T`-glue is **unconditional**: a `T` immediately following 8 digits belongs to the literal, so a malformed time-part is a syntax error: `20180120T09` does **not** re-tokenize as bounds `20180120` + selector `T09`. Greed never backtracks on semantic failure. The time part of a date literal is an ordinary wall-clock value: `hh` ≤ 23 and `mm`/`ss` ≤ 59; hour 24 is a `T`-range token ([§4](#4-time-of-day--t)) and never appears in a date literal (`20180120T2400/1D` is a syntax error).
