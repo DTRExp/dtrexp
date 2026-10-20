@@ -93,7 +93,7 @@ if errors.As(err, &pe) {
 
 | Member | Description |
 | --- | --- |
-| `Covers(t time.Time, tz string) (bool, error)` | Whether the expression covers the instant `t`, evaluated in IANA zone `tz`. An empty `tz` means UTC. Returns an error only when `tz` is not a loadable zone. |
+| `Covers(t time.Time, tz string) (bool, error)` | Whether the expression covers the instant `t`, evaluated in IANA zone `tz`. An empty `tz` means UTC. Returns an error only when `tz` is not a loadable zone; `"Local"`, Go's name for the host's zone, is refused (since v1.0.1). |
 | `CoversIn(t time.Time, loc *time.Location) bool` | `Covers` with an already-resolved `*time.Location` (`nil` means UTC); cannot fail. |
 | `Warnings() []Warning` | The [§9.1](/spec/#91-the-existence-rule) warnings collected during parsing; same content as `Validate(s).Warnings`. Empty for a clean expression. |
 | `Source() string` | The original expression string, verbatim. |

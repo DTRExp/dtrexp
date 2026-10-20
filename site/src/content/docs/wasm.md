@@ -87,7 +87,7 @@ parse('D30 M2').warnings;
 ### Inputs & Options
 
 - **Instants**: `Date`, epoch milliseconds, ISO 8601 string, or any Temporal-like object exposing `epochMilliseconds` (no Temporal dependency).
-- **`opts.tz`**: IANA time zone for evaluation (e.g. `"Europe/Berlin"`), default `"UTC"`.
+- **`opts.tz`**: IANA time zone for evaluation (e.g. `"Europe/Berlin"`), default (or `null`) `"UTC"`. Pass it as `{ tz }`: a bare string, or a zone that is not a string, throws `TypeError` (since 1.0.2).
 
 ### Time Zones
 

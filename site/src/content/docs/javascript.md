@@ -96,8 +96,8 @@ parse('D25 M12').toRRule();
 
 | Member | Description |
 | --- | --- |
-| `withZone(tz)` | A copy whose evaluation defaults to the IANA zone `tz`; the original is left as it is. The copy's `source`, `toString()`, `describe()`, `toRRule()` and `warnings` are the same: the zone belongs to evaluation, never to the expression. A `{ tz }` passed to a call still wins. Throws `RangeError` at once on an unknown zone. |
-| `zone` | The bound zone in the platform's canonical form (`'utc'` → `'UTC'`), or `undefined` when none is bound. |
+| `withZone(tz)` | A copy whose evaluation defaults to the IANA zone `tz`; the original is left as it is. The copy's `source`, `toString()`, `describe()`, `toRRule()` and `warnings` are the same: the zone belongs to evaluation, never to the expression. A `{ tz }` passed to a call still wins. Throws `RangeError` at once on an unknown zone, and `TypeError` when `tz` is not a string. |
+| `zone` | The bound zone as the platform names it (case-normalized; UTC aliases → `'UTC'`), or `undefined` when none is bound. |
 | `covers(instant, opts?)` | Whether the expression covers the instant. O(#components) integer tests after one field extraction. |
 | `intersect(start, end, opts?)` | Covered intervals clipped to `[start, end)`: a finite, sorted, merged list of half-open `{ start: Date, end: Date }` intervals. |
 | `next(after, opts?)` | The first **maximal** covered interval starting strictly after `after` (coverage containing `after` is skipped). `null` when nothing starts before the year-9999 horizon: the coverage is exhausted, or it is continuous from `after` on (`E1:7` covers every instant, so nothing ever *starts*); neither means "never applies", `covers(after)` says whether it applies now. |
@@ -111,7 +111,7 @@ parse('D25 M12').toRRule();
 ### Inputs & Options
 
 - **Instants**: `Date`, epoch milliseconds, ISO 8601 string, or any Temporal-like object exposing `epochMilliseconds` (no Temporal dependency). A date-time string without `Z` or an offset is read in the **host's** zone, not the evaluation zone; give strings an offset.
-- **`opts.tz`**: IANA time zone for evaluation; default the bound `zone` (`withZone()`), else `'UTC'`. Pass it as `{ tz }`; a bare string throws `TypeError`, an unknown zone `RangeError`. The zone is always an **evaluation parameter**, never part of the expression. DST is handled per [spec §9.3](/spec/#93-dst-and-local-time): spring-forward gap times cover nothing; repeated fall-back times are covered on both passes. `intersect()` and `next()` return exactly the instants `covers()` accepts, transition days included: a clock time inside a gap yields no interval, a repeated one yields two.
+- **`opts.tz`**: IANA time zone for evaluation; default (or `null`) the bound `zone` (`withZone()`), else `'UTC'`. Pass it as `{ tz }`; a bare string or a zone that is not a string throws `TypeError`, an unknown zone `RangeError`. The zone is always an **evaluation parameter**, never part of the expression. DST is handled per [spec §9.3](/spec/#93-dst-and-local-time): spring-forward gap times cover nothing; repeated fall-back times are covered on both passes. `intersect()` and `next()` return exactly the instants `covers()` accepts, transition days included: a clock time inside a gap yields no interval, a repeated one yields two.
 
 ## Quality
 
