@@ -111,7 +111,7 @@ parse('D25 M12').toRRule();
 ### Inputs & Options
 
 - **Instants**: `Date`, epoch milliseconds, ISO 8601 string, or any Temporal-like object exposing `epochMilliseconds` (no Temporal dependency). A date-time string without `Z` or an offset is read in the **host's** zone, not the evaluation zone; give strings an offset.
-- **`opts.tz`**: IANA time zone for evaluation; default (or `null`) the bound `zone` (`withZone()`), else `'UTC'`. Pass it as `{ tz }`; a bare string or a zone that is not a string throws `TypeError`, an unknown zone `RangeError`. The zone is always an **evaluation parameter**, never part of the expression. DST is handled per [spec §9.3](/spec/#93-dst-and-local-time): spring-forward gap times cover nothing; repeated fall-back times are covered on both passes. `intersect()` and `next()` return exactly the instants `covers()` accepts, transition days included: a clock time inside a gap yields no interval, a repeated one yields two.
+- **`opts.tz`**: IANA time zone for evaluation; default (or `null`) the bound `zone` (`withZone()`), else `'UTC'`. Pass it as `{ tz }`; a bare string or a zone that is not a string throws `TypeError`, an unknown zone `RangeError`. Any zone the runtime's `Intl` accepts works, fixed offsets such as `'+01:00'` included where it accepts them; an IANA name is the portable choice. The zone is always an **evaluation parameter**, never part of the expression. DST is handled per [spec §9.3](/spec/#93-dst-and-local-time): spring-forward gap times cover nothing; repeated fall-back times are covered on both passes. `intersect()` and `next()` return exactly the instants `covers()` accepts, transition days included: a clock time inside a gap yields no interval, a repeated one yields two.
 
 ## Quality
 
