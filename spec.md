@@ -103,6 +103,8 @@ Two ideas decide what every component value means; they are easy to conflate.
 
 `Y`'s edges are the format's own limits: years 1 and 9999, the 4-digit ISO range the 8-digit `YYYYMMDD` date-literal grammar already commits to ([§6](#6-absolute-bounds--date-literals)). So `Y2020:*` reads "2020 through the end of the representable timeline"; still the same single meaning of `*`, resolving to the domain edge like everywhere else.
 
+An instant outside years 1–9999 lies outside that timeline, so what `covers` and the derived operations answer for it is not specified: an implementation may compute an answer or reject the instant, and no vector uses one.
+
 A range may put `*` at **both** ends: `M*:*` is accepted, each `*` independently resolving to its edge, and means exactly `M*`, which is the canonical spelling. (Bounds are the exception: an undesignated `*:*` is a syntax error, [§6](#6-absolute-bounds--date-literals).)
 
 **Negative anchors have constant length; positive ones do not.** A negative start counts back from the edge, so its distance to the edge never varies: `D-7:*` is *always* the last 7 days (Feb 23–29 · Mar 25–31), while `D25:*` is 4–7 days depending on the month. `D-7` alone is a single day: the 7th from the end; the `:*` is what makes it a range. This is also why strides forbid end-relative starts ([§3](#3-component-values), Rules): `D-10:*/2` would shift phase in every month of a different length.

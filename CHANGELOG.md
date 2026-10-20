@@ -2,6 +2,12 @@
 
 DTRExp has been in the works since 2017. Draft 1, then under the name **DTRE**, is dated August 24, 2018; the format spent the years between in production notes and a shelved implementation. Draft 2 (2026) is a ground-up revision with one added discipline: five clean-room implementations, each built from the prose and vectors alone, plus the reference; every divergence between them resolved as a spec fix and a test vector. Newest first.
 
+## Since Draft 2.9 (unreleased)
+
+| Was | Now | Why |
+| --- | --- | --- |
+| — | §2: an instant outside years 1–9999 has no specified answer; an implementation may compute one or reject the instant | the spec was silent, and the ports simply compute (`E1:7` covers year 10000 in the reference); saying so keeps a port that rejects such instants conforming, and no vector depends on it |
+
 ## Changes from Draft 2.8 (draft 2.9)
 
 The Extended operations get a definition and a contract. No grammar or Core evaluation change: `vectors.json` is byte-identical to 2.8, and a 2.8-conforming implementation is 2.9-conforming as it stands.
