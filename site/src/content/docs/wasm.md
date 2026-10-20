@@ -1,9 +1,9 @@
 ---
 title: "WASM"
-description: "dtrexp-wasm on npm — the Rust DTRExp core compiled to WebAssembly for browsers, Node, Deno, and edge runtimes. Install, quick start, API and worked examples."
+description: "dtrexp-wasm on npm — the Rust DTRExp core compiled to WebAssembly for browsers, Node, Deno and Bun. Install, quick start, API and worked examples."
 ---
 
-[`dtrexp-wasm`](https://github.com/DTRExp/dtrexp-wasm) is [DTRExp](/spec/) evaluated by the [Rust core](https://github.com/DTRExp/dtrexp-rs), compiled to WebAssembly for JS hosts — browsers, Node, Deno, edge runtimes. The wasm binary (~63 KB, ~29 KB gzipped) ships inside the package and instantiates at import; no fetch configuration, no separate asset step.
+[`dtrexp-wasm`](https://github.com/DTRExp/dtrexp-wasm) is [DTRExp](/spec/) evaluated by the [Rust core](https://github.com/DTRExp/dtrexp-rs), compiled to WebAssembly for JS hosts: browsers, Node, Deno and Bun (edge runtimes with WebAssembly support are untested). The wasm binary (~63 KB, ~29 KB gzipped) ships inside the package and instantiates at import; no fetch configuration, no separate asset step.
 
 For most JS applications the reference implementation, [`dtrexp`](/javascript/), is the right pick; it is pure TypeScript, zero-dependency, and implements the full Tier-2 API (`next()`, `describe()`, `toRRule()`…). This package exists for a different job: running the **Rust** evaluator itself in a JS host. Use it when your backend already standardizes on [dtrexp-rs](https://github.com/DTRExp/dtrexp-rs) and you want the same binary logic in the browser, or for cross-implementation parity checks against the reference.
 
