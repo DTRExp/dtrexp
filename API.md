@@ -43,7 +43,7 @@ Parses the source text into an expression object.
 
 **returns** an `Expression` (or your language's equivalent).
 
-Fails with a **positioned** parse error on invalid input — a character position and a message, per the grammar and static rules of [spec §§2–8][spec]. Note that parse failure is the *only* failure: a syntactically valid expression never fails later.
+Fails with a **positioned** parse error on invalid input — a character position and a message, per the grammar and static rules of [spec §§2–8][spec]. Note that parse failure is the only failure *of the expression*: a syntactically valid expression never fails later. Evaluation can still reject what is passed to it (an unknown zone, an invalid instant).
 
 ### `validate(expression)`
 
@@ -84,7 +84,8 @@ Idiom wins on shape:
 The vocabulary does not:
 
 - The four operations — `parse`, `validate`, `covers`, `warnings` — and nothing else for these jobs. Not `isCovered`, not `check`, not `matches`.
-- The zone parameter of `covers` is an **IANA identifier** and its default is **UTC**. Always both — though in overloading languages the identifier form and the UTC default may live on different overloads of `covers` (a zone-object overload carrying the default, a string overload taking the identifier); what must hold is that the no-zone call means UTC and the IANA-string form exists.
+- The zone parameter of `covers` is an **IANA identifier** and its default is **UTC**. Always both — though in overloading languages the identifier form and the UTC default may live on different overloads of `covers` (a zone-object overload carrying the default, a string overload taking the identifier); what must hold is that the no-zone call on an expression with no bound zone (`with zone`, below) means UTC and the IANA-string form exists.
+- The zone comes from the call, a bound zone or the UTC default, never from the instant: where the native instant type carries a zone (Go's `time.Time`, Java's `ZonedDateTime`, a Python `datetime` with `tzinfo`), that zone only pins the instant down and is not the evaluation zone.
 - Errors and warnings carry a **position**.
 
 ## Extended (Tier 2)
@@ -98,6 +99,7 @@ None of these affect **Core** conformance. But if you implement the operation, u
 | `intersect(start, end [, zone])` | The covered intervals clipped to the finite half-open window `[start, end)`: a finite, sorted, merged list. |
 | `describe([locale])` | Human-readable text of the expression. |
 | `toRRule()` | RFC 5545 export. Constrained cadences need RFC 7529 `SKIP=BACKWARD` — see [spec §9.2][spec-92]. |
+| `with zone(zone)` | A copy of the expression whose evaluation defaults to *zone*, readable as `zone`; the original is left as it is. A zone passed to a call wins over it. The copy's source, canonical form, description, RRULE and warnings are the original's, since the zone belongs to evaluation, never to the expression ([spec §1][spec]). An unknown zone fails here, at once. Rendered `withZone`, `WithZone`, `with_zone`. |
 | `toString()` | The canonical form of the expression (not necessarily the original source). Where the language gives every object a built-in string conversion (Java's `toString`, Go's `String`, Python's `__str__`), it returns the source verbatim until the canonical operation is implemented — never a debug wrapper. |
 
 `next()`, `covering()` and `intersect()` are derived from `covers()` ([spec §9][spec-9], *Derived operations*) and return only instants it accepts, DST transition days included ([spec §9.3][spec-93]): a clock time inside a spring-forward gap yields no interval, a repeated fall-back time yields one per pass, and two covered spans separated by any uncovered instant stay two intervals. A *maximal* interval is one that cannot be extended at either end; one that reaches the edge of the year 1–9999 domain starts or ends there.
