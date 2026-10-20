@@ -11,11 +11,11 @@ description: "dtrexp-java — the Java port of DTRExp. Parsing, validation and c
 <dependency>
   <groupId>io.onury</groupId>
   <artifactId>dtrexp</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
-Gradle: `implementation("io.onury:dtrexp:1.0.1")`. Or skip the build tool entirely — zero dependencies, so building from source is just `./run.sh` (compiles the sources under `src/` and runs the conformance suite).
+Gradle: `implementation("io.onury:dtrexp:1.1.0")`. Or skip the build tool entirely — zero dependencies, so building from source is just `./run.sh` (compiles the sources under `src/` and runs the conformance suite).
 
 ## Quick Start
 
