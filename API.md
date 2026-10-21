@@ -43,7 +43,7 @@ Parses the source text into an expression object.
 
 **returns** an `Expression` (or your language's equivalent).
 
-Fails with a **positioned** parse error on invalid input — a character position and a message, per the grammar and static rules of [spec §§2–8][spec]. Note that parse failure is the only failure *of the expression*: a syntactically valid expression never fails later. Evaluation can still reject what is passed to it (an unknown zone, an invalid instant).
+Fails with a **positioned** parse error on invalid input — a position and a message, per the grammar and static rules of [spec §§2–8][spec]. The position is the 0-based offset, in Unicode code points, of the first character of the token at fault, as spec §8 defines it and the vectors pin; a language whose strings index by another unit converts. Note that parse failure is the only failure *of the expression*: a syntactically valid expression never fails later. Evaluation can still reject what is passed to it (an unknown zone, an invalid instant).
 
 ### `validate(expression)`
 
@@ -79,12 +79,12 @@ Idiom wins on shape:
 - **Types** follow the language: `datetime` in Python, `time.Time` in Go, `Instant` in Java, epoch millis + a zone handle in Rust.
 - **Failure** follows the language: exceptions, `Result`, `(value, error)` returns.
 - **Preloaded zones**: where zone lookup by identifier is costly or fallible, a variant named `covers in` (rendered per convention: `coversIn`, `CoversIn`, `covers_in`) MAY take the language's zone object instead of the IANA string. Where the language supports overloading, overloading `covers` itself is equally fine — then no extra name exists at all.
-- **Extras** are fine: a convenience that accepts ISO strings, extra overloads.
+- **Extras** are fine: a convenience that accepts ISO strings, extra overloads. A string instant must name its offset (`Z` or `±hh:mm`) and be a real date-time; one that does not is an error, never read in the host's zone or rolled over to another day.
 
 The vocabulary does not:
 
 - The four operations — `parse`, `validate`, `covers`, `warnings` — and nothing else for these jobs. Not `isCovered`, not `check`, not `matches`.
-- The zone parameter of `covers` is an **IANA identifier** and its default is **UTC**. Always both — though in overloading languages the identifier form and the UTC default may live on different overloads of `covers` (a zone-object overload carrying the default, a string overload taking the identifier); what must hold is that the no-zone call on an expression with no bound zone (`with zone`, below) means UTC and the IANA-string form exists.
+- The zone parameter of `covers` is an **IANA identifier** and its default is **UTC**. The accepted identifiers are the tz database's zone and link names (`Europe/Berlin`, `US/Eastern`, `UTC`, `Etc/GMT+5`), matched without regard to case and canonicalized; anything else is an unknown zone, including a fixed offset (`+02:00`, `UTC+2`), `Z`, a file in the zoneinfo folder that names no zone (`posixrules`, `Factory`, `localtime`) and an empty or missing name where a name is required. The tz database release that supplies the rules is the implementation's to document ([spec §9][spec-9]). Always both — though in overloading languages the identifier form and the UTC default may live on different overloads of `covers` (a zone-object overload carrying the default, a string overload taking the identifier); what must hold is that the no-zone call on an expression with no bound zone (`with zone`, below) means UTC and the IANA-string form exists.
 - The zone comes from the call, a bound zone or the UTC default, never from the instant: where the native instant type carries a zone (Go's `time.Time`, Java's `ZonedDateTime`, a Python `datetime` with `tzinfo`), that zone only pins the instant down and is not the evaluation zone.
 - Errors and warnings carry a **position**.
 

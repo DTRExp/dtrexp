@@ -17,12 +17,12 @@ Note that 2 and 3 are two sides of one requirement. Without the `quiet` class, a
 
 ```jsonc
 {
-  "spec": 2.8,                 // the draft these vectors pin
+  "spec": 3,                   // the draft these vectors pin
   "description": "…",          // the conformance statement, in one paragraph
-  "coverage": [ … ],           // 97 groups, 409 instant checks
-  "invalid":  [ … ],           // 57 expressions that must not parse
-  "warnings": [ … ],           //  9 expressions that must warn
-  "quiet":    [ … ]            //  6 expressions that must NOT warn
+  "coverage": [ … ],           // 108 groups, 444 instant checks
+  "invalid":  [ … ],           // 79 expressions that must not parse, each at its position
+  "warnings": [ … ],           // 28 expressions that must warn
+  "quiet":    [ … ]            // 12 expressions that must NOT warn
 }
 ```
 
@@ -50,10 +50,10 @@ Each group is one expression evaluated at several instants:
 ### `invalid`
 
 ```json
-{ "expression": "Y*/3", "reason": "anchorless stride" }
+{ "expression": "Y*/3", "reason": "anchorless stride", "position": 2 }
 ```
 
-*reason* is for the human reading a failed test; implementations only need to reject. The spec does not pin error messages or codes, only that parsing fails.
+*reason* is for the human reading a failed test. *position* is where the error must point: the 0-based offset, in Unicode code points, of the first character of the token at fault ([spec §8](spec.md#8-grammar-ebnf), *Error positions*). Implementations must reject the expression and report that position; the spec does not pin error messages or codes.
 
 ### `warnings` and `quiet`
 
@@ -70,7 +70,7 @@ A `warnings` expression parses successfully **and** reports at least one warning
 
 ```jsonc
 {
-  "spec": 2.9,
+  "spec": 3,
   "tier": "extended",
   "description": "…",
   "next":      [ … ],   // groups of after → interval, as for coverage

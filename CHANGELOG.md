@@ -2,12 +2,21 @@
 
 DTRExp has been in the works since 2017. Draft 1, then under the name **DTRE**, is dated August 24, 2018; the format spent the years between in production notes and a shelved implementation. Draft 2 (2026) is a ground-up revision with one added discipline: five clean-room implementations, each built from the prose and vectors alone, plus the reference; every divergence between them resolved as a spec fix and a test vector. Newest first.
 
-## Since Draft 2.9 (unreleased)
+## Changes from Draft 2.9 (draft 3)
+
+A conformance draft: no new feature, and no change to what a valid expression means. A clean-room review on 2026-10-21 ran about 1,900 expressions and 132,000 instants through all seven implementations and found that they agree on evaluation almost everywhere, and that the vectors let several real divergences through: the reference skipped warnings the spec requires and still passed, ports parsed the same malformed input differently, and error positions differed on 35 of the 57 invalid vectors. Draft 3 closes those gaps in the prose and pins every one of them in `vectors.json`. Some inputs that one or another implementation accepted are now errors everywhere; each was already outside the grammar or the static rules, or it crashed. The draft is numbered 3 because the vectors' `spec` field and every implementation's `SPEC_DRAFT` are numbers, which cannot spell 2.10.
 
 | Was | Now | Why |
 | --- | --- | --- |
+| §8: `dtrexp = expression , { "|" , expression } ;` | spaces allowed around `|` and at either end, as §1 and the `whitespace-tolerance` vector always required | the grammar contradicted the prose and a binding vector |
+| integers unbounded | an integer's value is at most 2,147,483,647, leading zeros unlimited | the implementations each chose a limit; one crashed the process, one returned wrong coverage, two threw outside their error type |
+| error positions unspecified ("a positioned error") | §8 *Error positions*: the 0-based code-point offset of the first character of the token at fault, by three rules; every invalid vector carries its `position` | positions differed on 35 of 57 invalid vectors; an editor underlined a different character in each language |
+| a date literal is `8digit , …` | exactly 8 digits, never followed by another digit; `2digit` … `8digit` defined | a 16-digit run split into two literals in four implementations and failed in three |
+| `M!*` unaddressed | an exclusion takes a value list; a bare `*` after `!` is a syntax error (`M!*:*` is valid) | three different behaviors in seven implementations |
+| tz data unaddressed | §9: the tz database release is an evaluation input outside the expression; each implementation documents its source; API.md names the accepted zone identifiers | one machine gave two answers for the same instant, from two bundled releases |
 | `integer` and `digit` used in the §8 grammar, never defined | §8 defines both: one or more ASCII digits, leading zeros allowed (`M03` = `M3`) | every implementation already read them this way except one, whose digit matched every Unicode digit (`2026٠١٠١` parsed as a date); the definition makes that a conformance bug rather than a reading |
 | — | §3: an instant outside years 1–9999 has no specified answer; an implementation may compute one or reject the instant | the spec was silent, and the ports simply compute (`E1:7` covers year 10000 in the reference); saying so keeps a port that rejects such instants conforming, and no vector depends on it |
+| vectors: 97 coverage groups, 57 invalid, 9 warnings, 6 quiet | 108, 79, 28, 12; `position` on every invalid vector | each new vector pins a divergence the review found: full-domain exclusions (`Y!1:9999` warned nowhere), Q-scoped and negative days, strided scoping, mixed-precision bounds whose starts differ, exact `H`/`m` cadence equality, wraps with a stride, the 9999 edge, the integer limit, non-ASCII whitespace and digits |
 
 ## Changes from Draft 2.8 (draft 2.9)
 

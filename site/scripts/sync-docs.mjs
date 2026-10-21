@@ -19,7 +19,7 @@ const files = [
     src: 'spec.md',
     out: 'spec.md',
     title: 'Specification',
-    description: 'The DTRExp specification — model, grammar, and evaluation semantics. Draft 2.9.'
+    description: 'The DTRExp specification — model, grammar, and evaluation semantics. Draft 3.'
   },
   {
     src: 'recurrence.md',

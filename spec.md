@@ -1,6 +1,6 @@
 # DTRExp — Date-Time Range & Recurrence Expression
 
-**Draft 2.9** · Status: RFC · 2026-09-11 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
+**Draft 3** · Status: RFC · 2026-10-21 · [Onur Yıldırım](https://github.com/onury) · changes: [CHANGELOG.md](CHANGELOG.md)
 
 A DTRExp (read: "**DTR expression**") is a compact string expression denoting a (possibly infinite) set of time intervals. It is evaluated for **coverage** ("is this instant inside the set?"), not enumerated into date objects. Finite windows of it can be enumerated on demand.
 
@@ -77,7 +77,7 @@ Rules:
 - Negative values are meaningless on `Y` (years are absolute, not counted back from a parent instance's edge, [§3.1](#31-domain-scope-and-)) and are rejected.
 - A literal `0` is **out of domain on the 1-based designators** and a syntax error there (`M0`, `D0`, `Q0`, `W0` name no month, day, quarter or week) while on the **0-based** `H`/`m`/`s` it is an ordinary value: `H0` is midnight's hour, `m0` the first minute. A **signed zero is never a value**: the `-` requires a nonzero integer, so `H-0` and `M-0` are syntax errors everywhere; `H0` is the only spelling of hour 0.
 - Negative values are domain-checked **symmetrically** at parse time: `-N … -1`, where *N* is the domain's maximum **size**, the count of its values (31 for month-scoped `D`, 24 for `H`; on 0-based domains this is not the same number as the largest value). `D-31` parses — and covers nothing in months without 31 days ([§9.1](#91-the-existence-rule)), the mirror of `D31` in April — while `D-32` is out of domain, a syntax error. At evaluation a negative `v` counts back from the parent instance's actual edge, resolving to `maxValue + 1 + v` where *maxValue* is the instance's **largest value**: `D-1` in Feb 2024 is 29 + 1 + (−1) = 29; on `H` it is 23 + 1 + v, so `H-1` is hour 23 and `H-24` is hour 0.
-- `*` as a bare list item is rejected (`M1,*`): a list containing the whole domain *is* the whole domain; write `M*`.
+- `*` as a bare list item is rejected (`M1,*`): a list containing the whole domain *is* the whole domain; write `M*`. So is a bare `*` after `!`, since an exclusion takes a value list: `M!*` is a syntax error, and `M!*:*` (a range) is valid and excludes the whole domain.
 - Strides attach to a single value or a single range, not to lists; the stride's start must be a **non-negative** value (an end-relative anchor like `D-10:*/2` would shift per parent instance; write the positive equivalent). Only the *start* is so restricted: a negative **end** merely clips per parent instance while the phase stays anchored, so `D2:-1/5` is valid. Wrap ranges take no stride.
 - `#` takes a single ordinal in `-5…-1, 1…5`. Multiple ordinals ("1st and 3rd Friday") use union: `E5#1 | E5#3`. The base value may itself be negative; it resolves against `E`'s fixed domain first, so `E-1#2` ≡ `E7#2` (the second Sunday).
 - Omitted coarser components default to "every": `M3` alone ≡ `M3` of every year. Writing `Y*` is legal, and redundant **unless it rescopes a finer component**: `D` and `E#` bind to the nearest coarser component *present* ([§2](#2-designators)), so `D-7:*` alone is the last 7 days of each **month**, while `D-7:* Y*` is the last 7 days of each **year**. Deleting a coarse `*` component is safe only when nothing takes its scope from it.
@@ -103,7 +103,7 @@ Two ideas decide what every component value means; they are easy to conflate.
 
 `Y`'s edges are the format's own limits: years 1 and 9999, the 4-digit ISO range the 8-digit `YYYYMMDD` date-literal grammar already commits to ([§6](#6-absolute-bounds--date-literals)). So `Y2020:*` reads "2020 through the end of the representable timeline"; still the same single meaning of `*`, resolving to the domain edge like everywhere else.
 
-An instant outside years 1–9999 lies outside that timeline, so what `covers` and the derived operations answer for it is not specified: an implementation may compute an answer or reject the instant, and no vector uses one.
+An instant whose local year in the evaluation zone falls outside 1–9999 lies outside that timeline, so what `covers` and the derived operations answer for it is not specified: an implementation may compute an answer or reject the instant, and no vector uses one.
 
 A range may put `*` at **both** ends: `M*:*` is accepted, each `*` independently resolving to its edge, and means exactly `M*`, which is the canonical spelling. (Bounds are the exception: an undesignated `*:*` is a syntax error, [§6](#6-absolute-bounds--date-literals).)
 
@@ -203,7 +203,7 @@ T0900:1800 E1:5 | T1000:1400 E6    weekday hours, plus short Saturdays
 ## 8. Grammar (EBNF)
 
 ```ebnf
-dtrexp      = expression , { "|" , expression } ;
+dtrexp      = { " " } , expression , { { " " } , "|" , { " " } , expression } , { " " } ;
 expression  = component , { { " " } , component } ;
 component   = selector | cadence | bounds ;
 
@@ -221,17 +221,31 @@ cadence     = date , "/" , integer , unit , [ "/" , integer , unit ] ;
 unit        = "Y" | "M" | "W" | "D" | "H" | "m" ;
 
 bounds      = date | ( date , ":" , ( date | "*" ) ) | ( "*" , ":" , date ) ;
-date        = 8digit , [ "T" , 4digit , [ 2digit ] ] ;
+date        = 8digit , [ "T" , 4digit , [ 2digit ] ] ;   (* never followed by another digit *)
 
 timeval     = 2digit | 4digit , [ 2digit , [ "." , 3digit ] ] ;
 
-integer     = digit , { digit } ;                       (* leading zeros allowed: M03 = M3 *)
+integer     = digit , { digit } ;                       (* leading zeros allowed: M03 = M3; value at most 2147483647 *)
 digit       = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;  (* ASCII only *)
+2digit      = digit , digit ;
+3digit      = digit , digit , digit ;
+4digit      = 2digit , 2digit ;
+8digit      = 4digit , 4digit ;
 ```
 
-Tokens match **greedily** (longest match): `20180120T1800` is always one date-with-time literal, never a bounds `20180120` followed by a selector `T1800`; `M3Y2018` parses as two components with the whitespace elided. The date literal's `T`-glue is **unconditional**: a `T` immediately following 8 digits belongs to the literal, so a malformed time-part is a syntax error: `20180120T09` does **not** re-tokenize as bounds `20180120` + selector `T09`. Greed never backtracks on semantic failure. The time part of a date literal is an ordinary wall-clock value: `hh` ≤ 23 and `mm`/`ss` ≤ 59; hour 24 is a `T`-range token ([§4](#4-time-of-day--t)) and never appears in a date literal (`20180120T2400/1D` is a syntax error).
+Tokens match **greedily** (longest match): `20180120T1800` is always one date-with-time literal, never a bounds `20180120` followed by a selector `T1800`; `M3Y2018` parses as two components with the whitespace elided. The date literal's `T`-glue is **unconditional**: a `T` immediately following 8 digits belongs to the literal, so a malformed time-part is a syntax error: `20180120T09` does **not** re-tokenize as bounds `20180120` + selector `T09`. Greed never backtracks on semantic failure. The time part of a date literal is an ordinary wall-clock value: `hh` ≤ 23 and `mm`/`ss` ≤ 59; hour 24 is a `T`-range token ([§4](#4-time-of-day--t)) and never appears in a date literal (`20180120T2400/1D` is a syntax error). A date literal is **exactly 8 digits**, never followed by a further digit: `2020010120200102/10D` is a syntax error, not two literals.
+
+An integer's value is at most **2,147,483,647** (2³¹ − 1), however many leading zeros it carries (`M0000000003` is `M3`); a larger one is a syntax error. Domains bound most values far lower; the limit is what bounds `Y` stride intervals ([§5.1](#51-stride--calendar-locked-recurrence)) and cadence periods and durations.
 
 (Static validity rules — domains, stride limits, one-designator-once, `W`⇒ISO-week-year, etc. — are constraints on top of this grammar, per §[§2](#2-designators)–6. They apply to the **completed expression**, not token-by-token: components are unordered, so `D40`'s domain check must wait until it is known whether an `M`/`Q`/`Y` scope is present; `Q2 D40` is valid, and a strict single-pass check would wrongly reject it.)
+
+**Error positions.** A syntax error carries a **position**: the 0-based offset, counted in Unicode code points, of the first character of the token at fault. The tokens are a designator, `!`, `*`, `:`, `,`, `/`, `#`, `|`, a value (its sign included), a count after `/` or `#` (a stride interval or duration, a cadence period or duration, an ordinal), a cadence unit, a date literal (its `T` part included) and a run of spaces. The token at fault is:
+
+- **where the grammar accepts no token**, the first token it cannot accept there: a character that begins no token (`M3~` → 2, `M3\tM5` → 2), a token in a place the grammar does not allow it (`M1,3/2` → 4, `T0900:*` → 6, `D5#2` → 2, `M!*` → 2, `*:*` → 2), or the end of the input where more was required (`M` → 1, `M3 |` → 4, the empty expression → 0);
+- **a value, date literal or count the rules do not allow**, that token: a value out of its domain or scope (`M13` → 1, `Q2 D40 M1` → 4), `-0` (`M-0` → 1), a date literal that is not a real date or is malformed (`20230229/1Y` → 0, `20180120T09` → 0), an integer above the limit, and a count that breaks its rule (`M3/14` → 3, `M1/3/3` → 5, `E7#6` → 3, `20200101/0D` → 9); a cadence whose duration is not smaller than its period names the duration when it is written (`20200101/10D/20D` → 13) and the period when it is implied (`20240131/1M` → 9);
+- **a rule between two tokens**, the later of the two: a repeated designator, cadence or bounds (`M3 M5` → 3), a range end that cannot follow its start (`T0900:0900` → 6, `20180301:20170301` → 9), and a stride its range or start does not allow (`H22:0/2` → 5, `Y*/3` → 2, `D-10:*/2` → 6).
+
+Warnings carry a position too, the first character of the component they concern; the vectors pin the positions of errors only.
 
 ## 9. Evaluation Semantics
 
@@ -242,6 +256,8 @@ Every component denotes a set of half-open instant intervals; the expression den
 3. A cadence covers `t` iff `t` lies inside one of its **occurrence windows**. Occurrence `k` (k ≥ 0) starts at `startₖ = constrain(anchor + k·period)` ([§9.2](#92-cadence-overflow--constrain-never-skip)) and ends at `constrain(startₖ + duration)`; the end is measured **from the constrained start**, not from the ideal `anchor + k·period + duration` (for `20240131/3M/1M`, occurrence 1 runs Apr 30 → May 30, not May 31). For `D`/`W`/`M`/`Y` periods this arithmetic is naive local-calendar and the window is a **local wall-clock interval**: membership compares `t`'s local fields against the naive window; the anchor is never resolved to an instant ([§9.3](#93-dst-and-local-time)). For `H`/`m` periods the anchor resolves to a single instant ([§9.3](#93-dst-and-local-time)) and windows are absolute elapsed time. For the exact units (`D`/`W`/`H`/`m`) this reduces to `unitsBetween(anchor, t) mod period < duration`; for month/year periods the window start **must** be computed by constrained anchor arithmetic; the reduction is wrong there (`20240131/1M/1D` covers Apr 30, which no `mod` on `monthsBetween` yields). `k` is still locatable in O(1) via `floor(unitsBetween(anchor, t) / period)` ± 1.
 4. Bounds test `t` against the absolute window.
 5. `covers(t)` ⇔ every component passes; a `|`-union covers ⇔ any branch covers.
+
+**Time-zone data.** The tz database release that supplies a zone's rules is an input to evaluation, like the zone itself, and never part of the expression: two implementations evaluating the same expression in the same zone agree wherever their releases agree, and may differ where one release has a rule change the other lacks. An implementation documents where its zone data comes from and how to pin it. The vectors use only rules settled long before any supported release.
 
 Cost: `covers` is O(#components) integer comparisons after one field extraction, no date object iteration. This is the property that makes DTRExp suitable for hot paths (e.g. per-request permission checks).
 
@@ -307,7 +323,7 @@ Not representable, following POSIX/Temporal: `s` runs 0–59 and `T…60` is inv
 | 1st and 3rd Friday of every month | `E5#1 \| E5#3` |
 | First 10 ISO weeks of each year, 2015–2029 | `W1:10 Y2015:2029` |
 
-## 11. Open Questions (for draft 3)
+## 11. Open Questions (for draft 4)
 
 1. **`W` + `M` co-occurrence**: currently legal by intersection (`W10 M3` = the part of ISO week 10 that lies in March). Confirm or forbid.
 2. **Ordinal `#` on units other than `E`**: e.g. `D15#…` makes no sense, but `W#-1 M*` ("last full week of each month") is a recurring wish. Deferred; would reintroduce week-of-month semantics.
