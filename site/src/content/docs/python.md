@@ -94,7 +94,7 @@ dtrexp.parse("Y*/3")
 
 ## Quality
 
-The test suite is driven by the shared [`vectors.json`](https://github.com/DTRExp/dtrexp/blob/main/vectors.json) from the spec repo (the draft 2.8 file; draft 2.9 left the Core vectors unchanged): every coverage, rejection, warning and quiet vector, including the calendar traps (Feb 29 across 2000/2024/**2100**, `W53` existence, DST gap/overlap in `Europe/Berlin`). See [VECTORS](/vectors/) for how the suite works. 100% line and branch coverage is enforced; the code is mutation-tested with mutmut, and there are zero dependencies.
+The test suite is driven by the shared [`vectors.json`](https://github.com/DTRExp/dtrexp/blob/main/vectors.json) from the spec repo (draft 3, error positions included): every coverage, rejection, warning and quiet vector, including the calendar traps (Feb 29 across 2000/2024/**2100**, `W53` existence, DST gap/overlap in `Europe/Berlin`). See [VECTORS](/vectors/) for how the suite works. 100% line and branch coverage is enforced; the code is mutation-tested with mutmut, and there are zero dependencies.
 
 ## Links
 

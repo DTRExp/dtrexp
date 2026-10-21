@@ -89,7 +89,7 @@ parse('D30 M2').warnings;
 ### Inputs & Options
 
 - **Instants**: `Date`, epoch milliseconds, ISO 8601 string, or any Temporal-like object exposing `epochMilliseconds` (no Temporal dependency).
-- **`opts.tz`**: IANA time zone for evaluation (e.g. `"Europe/Berlin"`), default (or `null`) the bound `zone` (`withZone()`), else `"UTC"`. Pass it as `{ tz }`: a bare string, or a zone that is not a string, throws `TypeError` (since 1.0.2).
+- **`opts.tz`**: IANA time zone for evaluation (e.g. `"Europe/Berlin"`), default (or `null`) the bound `zone` (`withZone()`), else `"UTC"`. Pass it as `{ tz }`: a bare string, or a zone that is not a string, throws `TypeError` (since 1.0.2). The accepted names are the tz database's zone and link names, matched without regard to case; a fixed offset (`+02:00`), a name only ICU knows and the empty string are unknown zones.
 
 ### Time Zones
 

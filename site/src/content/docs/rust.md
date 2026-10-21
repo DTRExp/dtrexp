@@ -105,7 +105,7 @@ err.message;    // —> "hour out of range — 24 exists only as the exact token
 
 ## Quality
 
-The test suite is driven by the shared [`vectors.json`](https://github.com/DTRExp/dtrexp/blob/main/vectors.json) from the spec repo (the draft 2.8 file; draft 2.9 left the Core vectors unchanged), vendored at `tests/vectors.json`: every coverage, rejection, warning and quiet vector, including the calendar traps (Feb 29 across 2000/2024/**2100**, `W53` existence, DST gap/overlap in `Europe/Berlin`). Run `cargo test`; see [VECTORS](/vectors/) for how the suite works. `Tz::load` reads the system zoneinfo database directly, with no time-zone crate underneath, and the crate has zero dependencies.
+The test suite is driven by the shared [`vectors.json`](https://github.com/DTRExp/dtrexp/blob/main/vectors.json) from the spec repo (draft 3, error positions included), vendored at `tests/vectors.json`: every coverage, rejection, warning and quiet vector, including the calendar traps (Feb 29 across 2000/2024/**2100**, `W53` existence, DST gap/overlap in `Europe/Berlin`). Run `cargo test`; see [VECTORS](/vectors/) for how the suite works. `Tz::load` reads the system zoneinfo database directly, with no time-zone crate underneath, and the crate has zero dependencies.
 
 ## Links
 
