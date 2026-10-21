@@ -10,7 +10,7 @@ description: "dtrexp-swift — the Swift implementation of DTRExp. Install, quic
 Add the package to your `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.1.0")
+.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.2.0")
 ```
 
 Then depend on the `DTRExp` product from your target:
@@ -125,4 +125,4 @@ The test suite is driven by the shared [`vectors.json`](https://github.com/DTREx
 ## Links
 
 - Repository: [DTRExp/dtrexp-swift](https://github.com/DTRExp/dtrexp-swift)
-- Add via SwiftPM: `.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.1.0")`
+- Add via SwiftPM: `.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.2.0")`
