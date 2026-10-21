@@ -79,7 +79,7 @@ Idiom wins on shape:
 - **Types** follow the language: `datetime` in Python, `time.Time` in Go, `Instant` in Java, epoch millis + a zone handle in Rust.
 - **Failure** follows the language: exceptions, `Result`, `(value, error)` returns.
 - **Preloaded zones**: where zone lookup by identifier is costly or fallible, a variant named `covers in` (rendered per convention: `coversIn`, `CoversIn`, `covers_in`) MAY take the language's zone object instead of the IANA string. Where the language supports overloading, overloading `covers` itself is equally fine — then no extra name exists at all.
-- **Extras** are fine: a convenience that accepts ISO strings, extra overloads. A string instant must name its offset (`Z` or `±hh:mm`) and be a real date-time; one that does not is an error, never read in the host's zone or rolled over to another day.
+- **Extras** are fine: a convenience that accepts ISO strings, extra overloads. A string instant must be a real date-time; one that is not is an error, never rolled over to another day. It should name its offset (`Z` or `±hh:mm`): an offset-less string names no instant, so a library that accepts one documents how it reads it.
 
 The vocabulary does not:
 
