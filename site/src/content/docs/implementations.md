@@ -14,8 +14,8 @@ They share [one API vocabulary](/api/); operation names are fixed as words (`cov
 | Python | [`dtrexp`](https://pypi.org/project/dtrexp/) on PyPI | `pip install dtrexp` | Python 3.11+ |
 | Go | [`dtrexp-go`](https://github.com/DTRExp/dtrexp-go) via the Go proxy | `go get github.com/DTRExp/dtrexp-go` | Go 1.26+ |
 | Rust | [`dtrexp`](https://crates.io/crates/dtrexp) on crates.io | `cargo add dtrexp` | Rust 2021 edition |
-| Swift | [`dtrexp-swift`](https://github.com/DTRExp/dtrexp-swift) via SwiftPM | `.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.0.0")` | Swift 6.0+ |
-| Java | [`io.onury:dtrexp`](https://central.sonatype.com/artifact/io.onury/dtrexp) on Maven Central | `implementation("io.onury:dtrexp:1.0.1")` | Java 17+ |
+| Swift | [`dtrexp-swift`](https://github.com/DTRExp/dtrexp-swift) via SwiftPM | `.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.2.0")` | Swift 6.0+ |
+| Java | [`io.onury:dtrexp`](https://central.sonatype.com/artifact/io.onury/dtrexp) on Maven Central | `implementation("io.onury:dtrexp:1.2.0")` | Java 17+ |
 
 Each language has its own page with install, worked examples and the full member table:
 

@@ -144,7 +144,7 @@ let ok = dtr.covers_in(t, &berlin);
 Add the package to your `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.0.0")
+.package(url: "https://github.com/DTRExp/dtrexp-swift", from: "1.2.0")
 ```
 
 Swift 6.0+, Foundation only (`TimeZone` and `Date` for IANA zones and instants).
@@ -165,7 +165,7 @@ let ok = try dtr.covers(Date(), tz: "Europe/Berlin")
 </TabItem>
 <TabItem label="Java">
 
-On Maven Central as [`io.onury:dtrexp`](https://central.sonatype.com/artifact/io.onury/dtrexp) — Gradle: `implementation("io.onury:dtrexp:1.0.1")`. Pure Java 17+, zero dependencies (`java.time` for IANA zones).
+On Maven Central as [`io.onury:dtrexp`](https://central.sonatype.com/artifact/io.onury/dtrexp) — Gradle: `implementation("io.onury:dtrexp:1.2.0")`. Pure Java 17+, zero dependencies (`java.time` for IANA zones).
 
 ```java
 import io.onury.dtrexp.DTRExp;

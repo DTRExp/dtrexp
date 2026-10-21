@@ -66,7 +66,7 @@ A `warnings` expression parses successfully **and** reports at least one warning
 
 ## Extended Vectors (Tier 2)
 
-`vectors-extended.json` pins the Extended operations of [API.md](API.md): `next`, `covering` and `intersect`. It binds by name: an implementation that ships one of them under that name must pass that operation's section, and one that doesn't ignores the section. Core conformance is decided by `vectors.json` alone, which is unchanged since draft 2.8 (byte-identical, so its `spec` field still reads 2.8 and the ports that ship Core only have nothing to re-vendor).
+`vectors-extended.json` pins the Extended operations of [API.md](API.md): `next`, `covering` and `intersect`. It binds by name: an implementation that ships one of them under that name must pass that operation's section, and one that doesn't ignores the section. Core conformance is decided by `vectors.json` alone.
 
 ```jsonc
 {
